@@ -24,7 +24,7 @@
 #include <linux/wakelock.h>
 #include <linux/pm.h>
 #include <mach/msm_rpcrouter.h>
-#include <smd_private.h>
+#include "smd_private.h"
 #include <sharp/sh_sleepcheck.h>
 
 /* ==========================================================================================
