@@ -36,6 +36,12 @@
 
 #include "qsd-pcm.h"
 
+#if 1
+#define KDEBUG_FUNC() printk("msm8k_q6_api_flip_utils: %s()\n", __FUNCTION__)
+#else
+#define KDEBUG_FUNC() do {} while (0)
+#endif
+
 static int rc = 1;
 
 #define SND_DRIVER        "snd_qsd"
@@ -54,6 +60,7 @@ EXPORT_SYMBOL(the_locks);
 
 static unsigned convert_dsp_samp_index(unsigned index)
 {
+    KDEBUG_FUNC();
 	switch (index) {
 	case 48000:
 		return 3;
@@ -230,7 +237,7 @@ qsd_pcm_playback_pointer(struct snd_pcm_substream *substream)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct qsd_audio *prtd = runtime->private_data;
-
+    KDEBUG_FUNC();
 	if (prtd->pcm_irq_pos == prtd->pcm_size)
 		prtd->pcm_irq_pos = 0;
 	return bytes_to_frames(runtime, (prtd->pcm_irq_pos));
@@ -240,6 +247,7 @@ void alsa_event_cb_playback(u32 event, void *evt_packet,
 			u32 evt_packet_len, void *client_data)
 {
 	struct qsd_audio *prtd = client_data;
+    KDEBUG_FUNC();
 	if (event == CAD_EVT_STATUS_EOS) {
 
 		prtd->eos_ack = 1;
@@ -266,7 +274,7 @@ static int qsd_pcm_open(struct snd_pcm_substream *substream)
 	struct qsd_audio *prtd;
 	struct cad_event_struct_type alsa_event;
 	int ret = 0;
-
+    KDEBUG_FUNC();
 	prtd = kzalloc(sizeof(struct qsd_audio), GFP_KERNEL);
 	if (prtd == NULL) {
 		ret = -ENOMEM;
@@ -336,7 +344,7 @@ static int qsd_pcm_playback_copy(struct snd_pcm_substream *substream, int a,
 
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct qsd_audio *prtd = runtime->private_data;
-
+    KDEBUG_FUNC();
 	fbytes = frames_to_bytes(runtime, frames);
 	prtd->cbs.buffer = (void *)buf;
 	prtd->cbs.phys_addr = 0;
@@ -363,7 +371,7 @@ static int qsd_pcm_playback_close(struct snd_pcm_substream *substream)
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct qsd_audio *prtd = runtime->private_data;
 	int ret = 0;
-
+    KDEBUG_FUNC();
 	if (prtd->enabled) {
 		mutex_lock(&the_locks.lock);
 		cad_ioctl(prtd->cad_w_handle,
@@ -404,7 +412,7 @@ static int qsd_pcm_capture_copy(struct snd_pcm_substream *substream, int a,
 
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct qsd_audio *prtd = runtime->private_data;
-
+    KDEBUG_FUNC();
 	fbytes = frames_to_bytes(runtime, frames);
 	fbytes = fbytes;
 
@@ -429,7 +437,7 @@ qsd_pcm_capture_pointer(struct snd_pcm_substream *substream)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct qsd_audio *prtd = runtime->private_data;
-
+    KDEBUG_FUNC();
 	return bytes_to_frames(runtime, (prtd->pcm_irq_pos));
 }
 
@@ -437,7 +445,7 @@ static int qsd_pcm_capture_close(struct snd_pcm_substream *substream)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct qsd_audio *prtd = runtime->private_data;
-
+    KDEBUG_FUNC();
 	mutex_lock(&the_locks.lock);
 	cad_close(prtd->cad_w_handle);
 	mutex_unlock(&the_locks.lock);
@@ -461,7 +469,7 @@ static int qsd_pcm_capture_prepare(struct snd_pcm_substream *substream)
 	struct cad_stream_info_struct_type cad_stream_info;
 	struct cad_write_pcm_format_struct_type cad_write_pcm_fmt;
 	u32 stream_device[1];
-
+    KDEBUG_FUNC();
 	prtd->pcm_size = snd_pcm_lib_buffer_bytes(substream);
 	prtd->pcm_count = snd_pcm_lib_period_bytes(substream);
 	prtd->pcm_irq_pos = 0;
@@ -525,7 +533,7 @@ static int qsd_pcm_copy(struct snd_pcm_substream *substream, int a,
 			snd_pcm_uframes_t frames)
 {
 	int ret = 0;
-
+    KDEBUG_FUNC();
 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
 		ret = qsd_pcm_playback_copy(substream, a, hwoff, buf, frames);
 	else if (substream->stream == SNDRV_PCM_STREAM_CAPTURE)
@@ -536,7 +544,7 @@ static int qsd_pcm_copy(struct snd_pcm_substream *substream, int a,
 static int qsd_pcm_close(struct snd_pcm_substream *substream)
 {
 	int ret = 0;
-
+    KDEBUG_FUNC();
 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
 		ret = qsd_pcm_playback_close(substream);
 	else if (substream->stream == SNDRV_PCM_STREAM_CAPTURE)
@@ -546,6 +554,7 @@ static int qsd_pcm_close(struct snd_pcm_substream *substream)
 static int qsd_pcm_prepare(struct snd_pcm_substream *substream)
 {
 	int ret = 0;
+    KDEBUG_FUNC();
 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
 		ret = qsd_pcm_playback_prepare(substream);
 	else if (substream->stream == SNDRV_PCM_STREAM_CAPTURE)
@@ -556,7 +565,7 @@ static int qsd_pcm_prepare(struct snd_pcm_substream *substream)
 static snd_pcm_uframes_t qsd_pcm_pointer(struct snd_pcm_substream *substream)
 {
 	snd_pcm_uframes_t ret = 0;
-
+    KDEBUG_FUNC();
 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
 		ret = qsd_pcm_playback_pointer(substream);
 	else if (substream->stream == SNDRV_PCM_STREAM_CAPTURE)
@@ -568,7 +577,7 @@ int qsd_pcm_hw_params(struct snd_pcm_substream *substream,
 		      struct snd_pcm_hw_params *params)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
-
+    KDEBUG_FUNC();
 	if (substream->pcm->device & 1) {
 		runtime->hw.info &= ~SNDRV_PCM_INFO_INTERLEAVED;
 		runtime->hw.info |= SNDRV_PCM_INFO_NONINTERLEAVED;
@@ -591,6 +600,7 @@ EXPORT_SYMBOL_GPL(qsd_pcm_ops);
 static int qsd_pcm_remove(struct platform_device *devptr)
 {
 	struct snd_soc_device *socdev = platform_get_drvdata(devptr);
+    KDEBUG_FUNC();
 	snd_soc_free_pcms(socdev);
 	kfree(socdev->codec);
 	platform_set_drvdata(devptr, NULL);
@@ -601,6 +611,7 @@ static int qsd_pcm_new(struct snd_card *card,
 			struct snd_soc_dai *codec_dai,
 			struct snd_pcm *pcm)
 {
+    KDEBUG_FUNC();
 	if (!card->dev->coherent_dma_mask)
 		card->dev->coherent_dma_mask = DMA_32BIT_MASK;
 

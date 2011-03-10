@@ -102,7 +102,13 @@
 
 
 #if 1
-#define D(fmt, args...) printk(KERN_INFO "ARD: " fmt, ##args)
+#define KDEBUG_FUNC() printk("msm8k_q6_api_flip_utils: %s()\n", __FUNCTION__)
+#else
+#define KDEBUG_FUNC() do {} while (0)
+#endif
+
+#if 1
+#define D(fmt, args...) printk(KERN_INFO "msm8k_q6_api_flip_utils:%s() " fmt, __FUNCTION__ ,##args)
 #else
 #define D(fmt, args...) do {} while (0)
 #endif
@@ -112,6 +118,8 @@
 u32 q6_stream_context_mapping(enum cad_stream_app_enum_type app_type,
 			      u32 *mode)
 {
+    D("app_type=%d\n",(int)app_type);
+
 	*mode = ADSP_AUDIO_OPEN_STREAM_MODE_NONE;
 
 	switch (app_type) {
@@ -144,6 +152,8 @@ u32 q6_stream_context_mapping(enum cad_stream_app_enum_type app_type,
 
 u32 q6_open_op_mapping(u32 op_code)
 {
+    D("op_code=%d\n",op_code);
+
 	switch (op_code) {
 	case CAD_OPEN_OP_READ:
 		/* voice */
@@ -162,6 +172,8 @@ u32 q6_open_op_mapping(u32 op_code)
 
 u32 q6_device_id_mapping(u32 device)
 {
+    D("device=%d\n",device);
+
 	switch (device) {
 	case CAD_HW_DEVICE_ID_HANDSET_MIC:
 		return ADSP_AUDIO_DEVICE_ID_HANDSET_MIC;
@@ -242,6 +254,8 @@ u32 q6_device_id_mapping(u32 device)
 
 u8 q6_device_direction_mapping(u8 device)
 {
+    D("device=%d",device);
+
 	switch (device) {
 	case CAD_TX_DEVICE:
 		return ADSP_AUDIO_TX_DEVICE;
@@ -257,6 +271,7 @@ s32 convert_format_block(s32 session_id,
 				struct cadi_open_struct_type *cad_open_struct)
 {
 	s32 result = CAD_RES_SUCCESS;
+    KDEBUG_FUNC();
 
 	if ((cad_open_struct->cad_config.format_block_len != 0) &&
 		(cad_open_struct->cad_config.format_block == NULL))
@@ -332,7 +347,7 @@ s32 convert_pcm_format_block(s32 session_id,
 	s32					result = CAD_RES_SUCCESS;
 	struct cad_write_pcm_struct_type	*cad_format = NULL;
 	struct adsp_audio_standard_format	*q6_format = NULL;
-
+    KDEBUG_FUNC();
 	if ((cad_open_struct->cad_config.format_block == NULL) ||
 		(cad_open_struct->cad_config.format_block_len !=
 		sizeof(struct cad_write_pcm_format_struct_type))) {
@@ -427,7 +442,7 @@ s32 convert_dtmf_format_block(s32 session_id,
 {
 	s32					result = CAD_RES_SUCCESS;
 	struct adsp_audio_standard_format	*q6_format = NULL;
-
+    KDEBUG_FUNC();
 	/* Save and translate the cmdbuff passed in */
 	q6_format = (struct adsp_audio_standard_format *)
 		&(q6_open_struct->open_data.format_block);
@@ -451,7 +466,7 @@ s32 convert_yadpcm_format_block(s32 session_id,
 	s32					result = CAD_RES_SUCCESS;
 	struct cad_adpcm_format_struct		*cad_format = NULL;
 	struct adsp_audio_standard_format	*q6_format = NULL;
-
+    KDEBUG_FUNC();
 	if ((cad_open_struct->cad_config.format_block == NULL) ||
 		(cad_open_struct->cad_config.format_block_len !=
 		sizeof(*cad_format))) {
@@ -488,7 +503,7 @@ s32 convert_adpcm_format_block(s32 session_id,
 	s32					result = CAD_RES_SUCCESS;
 	struct cad_adpcm_format_struct		*cad_format = NULL;
 	struct adsp_audio_adpcm_format		*q6_format = NULL;
-
+    KDEBUG_FUNC();
 	if ((cad_open_struct->cad_config.format_block == NULL) ||
 		(cad_open_struct->cad_config.format_block_len !=
 		sizeof(*cad_format))) {
@@ -528,7 +543,7 @@ s32 convert_aac_format_block(s32 session_id,
 	u32					*aac_type = NULL;
 	s32					index = sizeof(u32);
 	u32		op_code = cad_open_struct->cad_open.op_code;
-
+    KDEBUG_FUNC();
 	if ((cad_open_struct->cad_config.format_block == NULL) ||
 		(cad_open_struct->cad_config.format_block_len !=
 		sizeof(struct cad_write_aac_format_struct_type))) {
@@ -677,7 +692,7 @@ s32 convert_amr_format_block(s32 session_id,
 	s32					result = CAD_RES_SUCCESS;
 	struct cad_amr_format			*cad_format = NULL;
 	struct adsp_audio_standard_format	*q6_format = NULL;
-
+    KDEBUG_FUNC();
 	if ((cad_open_struct->cad_config.format_block == NULL) ||
 		(cad_open_struct->cad_config.format_block_len !=
 		sizeof(*cad_format))) {
@@ -739,7 +754,7 @@ s32 convert_evrc_format_block(s32 session_id,
 	s32					result = CAD_RES_SUCCESS;
 	struct cad_evrc_format			*cad_format = NULL;
 	struct adsp_audio_standard_format	*q6_format = NULL;
-
+    KDEBUG_FUNC();
 	if ((cad_open_struct->cad_config.format_block == NULL) ||
 		(cad_open_struct->cad_config.format_block_len !=
 		sizeof(*cad_format))) {
@@ -785,7 +800,7 @@ s32 convert_v13k_format_block(s32 session_id,
 	s32					result = CAD_RES_SUCCESS;
 	struct cad_qcelp13k_format		*cad_format = NULL;
 	struct adsp_audio_standard_format	*q6_format = NULL;
-
+    KDEBUG_FUNC();
 	if ((cad_open_struct->cad_config.format_block == NULL) ||
 		(cad_open_struct->cad_config.format_block_len !=
 		sizeof(*cad_format))) {
@@ -824,7 +839,7 @@ s32 convert_midi_format_block(s32 session_id,
 	s32					result = CAD_RES_SUCCESS;
 	struct cad_write_midi_struct_type	*cad_format = NULL;
 	struct adsp_audio_midi_format		*q6_format = NULL;
-
+    KDEBUG_FUNC();
 	if ((cad_open_struct->cad_config.format_block == NULL) ||
 		(cad_open_struct->cad_config.format_block_len !=
 		sizeof(struct cad_write_midi_format_struct_type))) {
@@ -857,7 +872,7 @@ s32 convert_mp3_format_block(s32 session_id,
 	s32					result = CAD_RES_SUCCESS;
 	struct adsp_audio_standard_format	*q6_format = NULL;
 
-
+    KDEBUG_FUNC();
 	/* Save and translate the cmdbuff passed in */
 	q6_format = (struct adsp_audio_standard_format *)
 		&(q6_open_struct->open_data.format_block);
@@ -880,7 +895,7 @@ s32 convert_sbc_format_block(s32 session_id,
 	s32					result = CAD_RES_SUCCESS;
 	struct cad_sbc_enc_cfg_struct_type	*cad_format = NULL;
 	struct adsp_audio_standard_format	*q6_format = NULL;
-
+    KDEBUG_FUNC();
 	if ((cad_open_struct->cad_config.format_block == NULL) ||
 		(cad_open_struct->cad_config.format_block_len !=
 		sizeof(*cad_format))) {
@@ -926,7 +941,7 @@ s32 convert_wma_std_format_block(s32 session_id,
 	s32					result = CAD_RES_SUCCESS;
 	struct cad_wma_format			*cad_format = NULL;
 	struct adsp_audio_wma_pro_format	*q6_format = NULL;
-
+    KDEBUG_FUNC();
 	if ((cad_open_struct->cad_config.format_block == NULL) ||
 		(cad_open_struct->cad_config.format_block_len !=
 		sizeof(*cad_format))) {
@@ -966,6 +981,8 @@ s32 convert_wma_std_format_block(s32 session_id,
 
 u32 q6_dtx_mode_mapping(u32 dtx_mode)
 {
+    D("dtx_mode=%d",dtx_mode);
+
 	switch (dtx_mode) {
 	case CAD_AMR_DTX_OFF:
 		return ADSP_AUDIO_AMR_DTX_MODE_OFF;
@@ -984,6 +1001,7 @@ u32 q6_dtx_mode_mapping(u32 dtx_mode)
 
 u32 q6_band_mode_mapping(u32 mode)
 {
+    D("mode=%d",mode);
 	switch (mode) {
 	case CAD_AMR_BM_NB0:
 	case CAD_AMR_BM_WB0:

@@ -90,6 +90,12 @@
 #include <mach/qdsp6/msm8k_cad_q6eq_drvi.h>
 
 #if 1
+#define KDEBUG_FUNC() printk("msm8k_q6_api_flip_utils: %s()\n", __FUNCTION__)
+#else
+#define KDEBUG_FUNC() do {} while (0)
+#endif
+
+#if 1
 #define D(fmt, args...) printk(KERN_INFO "msm8k_pcm: " fmt, ##args)
 #else
 #define D(fmt, args...) do {} while (0)
@@ -192,7 +198,7 @@ void msm8k_pcm_eos_event_cb(u32 event, void *evt_packet,
 				u32 evt_packet_len, void *client_data)
 {
 	struct pcm *pcm = client_data;
-
+    KDEBUG_FUNC();
 	if (event == CAD_EVT_STATUS_EOS) {
 
 		pcm->eos_ack = 1;
@@ -436,6 +442,7 @@ int msm8k_pcm_read_proc(char *pbuf, char **start, off_t offset,
 			int count, int *eof, void *data)
 {
 	int len = 0;
+    KDEBUG_FUNC();
 	len += snprintf(pbuf, 16, "pcm\n");
 
 	*eof = 1;

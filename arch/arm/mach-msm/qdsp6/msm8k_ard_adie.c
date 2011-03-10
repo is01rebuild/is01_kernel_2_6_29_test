@@ -93,6 +93,12 @@ static u32 adie_spkr_mono_ref2_cnt;
 static u32 adie_spkr_stereo_ref2_cnt;
 
 #if 1
+#define KDEBUG_FUNC() printk("msm8k_q6_api_flip_utils: %s()\n", __FUNCTION__)
+#else
+#define KDEBUG_FUNC() do {} while (0)
+#endif
+
+#if 1
 #define D(fmt, args...) printk(KERN_INFO "adie: " fmt, ##args)
 #else
 #define D(fmt, args...) do {} while (0)
@@ -101,7 +107,7 @@ static u32 adie_spkr_stereo_ref2_cnt;
 u32 get_path_id(u32 dev_id)
 {
 	u32 adie_path_id = 0;
-
+    D("dev_id=%d",dev_id);
 	switch (dev_id) {
 	case CAD_HW_DEVICE_ID_HANDSET_MIC:
 		adie_path_id = DAL_ADIE_CODEC_HANDSET_TX;
@@ -193,7 +199,7 @@ u32 get_path_id(u32 dev_id)
 u32 get_path_type(u32 cad_dev_type)
 {
 	u32 adie_dev_type;
-
+    
 	switch (cad_dev_type) {
 	case CAD_RX_DEVICE:
 		adie_dev_type = ADIE_CODEC_RX;
@@ -242,7 +248,7 @@ s32 adie_init(void)
 {
 	s32	dal_rc;
 	u8	dev_type;
-
+    KDEBUG_FUNC();
 	dal_rc = CAD_RES_SUCCESS;
 	dev_type = 0;
 
@@ -267,7 +273,7 @@ s32 adie_dinit(void)
 {
 	s32	dal_rc;
 	u8	dev_type;
-
+    KDEBUG_FUNC();
 	dal_rc = CAD_RES_SUCCESS;
 	dev_type = 0;
 
@@ -289,7 +295,7 @@ s32 adie_dinit(void)
 s32 adie_open(u32 dev_type)
 {
 	s32 cad_rc, dal_rc;
-
+    KDEBUG_FUNC();
 	cad_rc = dal_rc = CAD_RES_SUCCESS;
 
 	if (!pmic_initialized)
@@ -314,7 +320,7 @@ s32 adie_open(u32 dev_type)
 s32 adie_close(u32 dev_type)
 {
 	s32 rc;
-
+    KDEBUG_FUNC();
 	rc = CAD_RES_SUCCESS;
 
 	if (adie_state.adie_opened == ADIE_TRUE) {
@@ -337,7 +343,7 @@ s32 adie_close(u32 dev_type)
 s32 adie_enable(u32 dev_type, u32 dev_id)
 {
 	s32 rc = CAD_RES_SUCCESS;
-
+    KDEBUG_FUNC();
 	if (adie_state.adie_path_type[dev_type].enabled != ADIE_TRUE) {
 		adie_state.adie_path_type[dev_type].enable_request = ADIE_TRUE;
 		rc = adie_state_control(dev_type, dev_id);
@@ -354,7 +360,7 @@ s32 adie_enable(u32 dev_type, u32 dev_id)
 s32 adie_disable(u32 dev_type, u32 dev_id)
 {
 	s32		rc = CAD_RES_SUCCESS;
-
+    KDEBUG_FUNC();
 	if (adie_state.adie_path_type[dev_type].enabled != ADIE_FALSE) {
 		adie_state.adie_path_type[dev_type].enabled = ADIE_FALSE;
 
@@ -375,7 +381,7 @@ u32 adie_state_control(u32 dev_type, u32 dev_id)
 {
 	s32				cad_res;
 	enum adie_state_ret_enum_type	rc;
-
+    KDEBUG_FUNC();
 	cad_res = CAD_RES_SUCCESS;
 	rc = ADIE_STATE_RC_SUCCESS;
 
@@ -411,7 +417,7 @@ enum adie_state_ret_enum_type adie_state_reset(u32 dev_type, u32 dev_id)
 	enum adie_codec_path_type_enum	path_type;
 	u32				path_id;
 	u32				freq_plan;
-
+    KDEBUG_FUNC();
 	rc = ADIE_STATE_RC_SUCCESS;
 	dal_rc = CAD_RES_SUCCESS;
 	if (adie_state.adie_path_type[dev_type].enable_request != ADIE_TRUE) {
@@ -474,6 +480,7 @@ done:
 
 static int is_speaker_mono(u32 dev_id)
 {
+    KDEBUG_FUNC();
 	if ((dev_id == CAD_HW_DEVICE_ID_SPKR_PHONE_MONO) ||
 		(dev_id == CAD_HW_DEVICE_ID_SPEAKER_SPKR_MONO_LB) ||
 		(dev_id == CAD_HW_DEVICE_ID_HEADSET_MONO_PLUS_SPKR_MONO_RX))
@@ -484,6 +491,7 @@ static int is_speaker_mono(u32 dev_id)
 
 static int is_speaker_stereo(u32 dev_id)
 {
+    KDEBUG_FUNC();
 	if ((CAD_HW_DEVICE_ID_SPKR_PHONE_STEREO == dev_id) ||
 		(CAD_HW_DEVICE_ID_SPEAKER_SPKR_STEREO_LB == dev_id) ||
 		(CAD_HW_DEVICE_ID_HEADSET_MONO_PLUS_SPKR_STEREO_RX
@@ -499,7 +507,7 @@ enum adie_state_ret_enum_type adie_state_digital_active(u32 dev_type,
 	enum adie_state_ret_enum_type	rc;
 	enum adie_codec_path_type_enum	path_type;
 	s32				dal_rc;
-
+    KDEBUG_FUNC();
 	rc = ADIE_STATE_RC_SUCCESS;
 	dal_rc = CAD_RES_SUCCESS;
 
@@ -668,7 +676,7 @@ enum adie_state_ret_enum_type adie_state_digital_analog_active(u32 dev_type,
 	s32				dal_rc;
 	enum adie_state_ret_enum_type   rc;
 	enum adie_codec_path_type_enum	path_type;
-
+    KDEBUG_FUNC();
 	dal_rc = CAD_RES_SUCCESS;
 	rc = ADIE_STATE_RC_SUCCESS;
 	path_type = get_path_type(dev_type);

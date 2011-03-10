@@ -82,7 +82,13 @@
 #include <mach/qdsp6/msm8k_ard_adie.h>
 
 #if 1
-#define D(fmt, args...) printk(KERN_INFO "ARD: " fmt, ##args)
+#define KDEBUG_FUNC() printk("msm8k_q6_api_flip_utils: %s()\n", __FUNCTION__)
+#else
+#define KDEBUG_FUNC() do {} while (0)
+#endif
+
+#if 1
+#define D(fmt, args...) printk(KERN_INFO "msm8k_ard_helper: %s():" fmt, __FUNCTION__, ##args)
 #else
 #define D(fmt, args...) do {} while (0)
 #endif
@@ -101,7 +107,7 @@
 u32 get_device_id(u32 cad_device_requested)
 {
 	u32 dev_id = 0;
-
+    D("cad_device_requested=%d",cad_device_requested );
 	if ((cad_device_requested == CAD_HW_DEVICE_ID_SPKR_PHONE_MONO) ||
 		(cad_device_requested == CAD_HW_DEVICE_ID_SPKR_PHONE_STEREO) ||
 		(cad_device_requested == CAD_HW_DEVICE_ID_HANDSET_SPKR) ||
@@ -152,7 +158,7 @@ u32 get_device_id(u32 cad_device_requested)
 s32 codec_disable(enum codec_enum_type codec_type, u32 dev_type, u32 dev_id)
 {
 	s32 rc = CAD_RES_SUCCESS;
-
+    KDEBUG_FUNC();
 	switch (codec_type) {
 	case CODEC_INT:
 		rc = adie_disable(dev_type, dev_id);
@@ -183,7 +189,7 @@ s32 codec_disable(enum codec_enum_type codec_type, u32 dev_type, u32 dev_id)
 s32 codec_enable(enum codec_enum_type codec_type, u32 dev_type, u32 dev_id)
 {
 	s32 rc = CAD_RES_SUCCESS;
-
+    KDEBUG_FUNC();
 	switch (codec_type) {
 	case CODEC_INT:
 		rc = adie_open(dev_type);
@@ -213,7 +219,7 @@ s32 codec_enable(enum codec_enum_type codec_type, u32 dev_type, u32 dev_id)
 enum codec_enum_type get_codec_type(u32 device_in_use)
 {
 	enum codec_enum_type rc;
-
+    D("device_in_use=%d",device_in_use);
 	switch (device_in_use) {
 	case CAD_HW_DEVICE_ID_HANDSET_SPKR:
 	case CAD_HW_DEVICE_ID_HANDSET_MIC:

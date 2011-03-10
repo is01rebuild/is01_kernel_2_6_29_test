@@ -94,7 +94,7 @@
 #endif
 
 #if 1
-#define D(fmt, args...) printk(KERN_INFO "msm8k_cad_volume: " fmt, ##args)
+#define D(fmt, args...) printk(KERN_INFO "msm8k_cad_volume: %s()" fmt, __FUNCTION__ ,##args)
 #else
 #define D(fmt, args...) do {} while (0)
 #endif
@@ -158,14 +158,94 @@ static s32 stream_volume_cache;
 
 static u32 audio_ctrl_handle;
 
+void qdsp6_volume_ioctl_cmd_debug(u32 cmd) {
+
+    switch(cmd){
+    case CAD_IOCTL_CMD_SET_STREAM_EVENT_LSTR:
+        D("CAD_IOCTL_CMD_SET_STREAM_EVENT_LSTR\n");
+        break;
+    case CAD_IOCTL_CMD_STREAM_START:
+        D("CAD_IOCTL_CMD_SET_STREAM_EVENT_LSTR\n");
+        break;
+    case CAD_IOCTL_CMD_STREAM_PAUSE:
+        D("CAD_IOCTL_CMD_STREAM_PAUSE\n");
+        break;
+    case CAD_IOCTL_CMD_STREAM_RESUME:
+        D("CAD_IOCTL_CMD_STREAM_RESUME\n");
+        break;
+    case CAD_IOCTL_CMD_STREAM_FLUSH:
+        D("CAD_IOCTL_CMD_STREAM_FLUSH\n");
+        break;
+    case CAD_IOCTL_CMD_STREAM_END_OF_STREAM:
+        D("CAD_IOCTL_CMD_STREAM_END_OF_STREAM\n");
+        break;
+    case CAD_IOCTL_CMD_SET_STREAM_DEVICE:
+        D("CAD_IOCTL_CMD_SET_STREAM_DEVICE\n");
+        break;
+    case CAD_IOCTL_CMD_SET_STREAM_CONFIG:
+        D("CAD_IOCTL_CMD_SET_STREAM_CONFIG\n");
+        break;
+    case CAD_IOCTL_CMD_SET_STREAM_INFO:
+        D("CAD_IOCTL_CMD_SET_STREAM_INFO\n");
+        break;
+    case CAD_IOCTL_CMD_SET_STREAM_FILTER_CONFIG:
+        D("CAD_IOCTL_CMD_SET_STREAM_FILTER_CONFIG\n");
+        break;
+    case CAD_IOCTL_CMD_SET_STREAM_AV_SYNC:
+        D("CAD_IOCTL_CMD_SET_STREAM_AV_SYNC\n");
+        break;
+    case CAD_IOCTL_CMD_GET_AUDIO_TIME:
+        D("CAD_IOCTL_CMD_GET_AUDIO_TIME\n");
+        break;
+    case CAD_IOCTL_CMD_GEN_DTMF:
+        D("CAD_IOCTL_CMD_GEN_DTMF\n");
+        break;
+    case CAD_IOCTL_CMD_SET_DEVICE_FILTER_CONFIG:
+        D("CAD_IOCTL_CMD_SET_DEVICE_FILTER_CONFIG\n");
+        break;
+    case CAD_IOCTL_CMD_DEVICE_SET_CAL:
+        D("CAD_IOCTL_CMD_DEVICE_SET_CAL\n");
+        break;
+    case CAD_IOCTL_CMD_DEVICE_AUXPGA_ENABLE:
+        D("CAD_IOCTL_CMD_DEVICE_SET_CAL\n");
+        break;
+    case CAD_IOCTL_CMD_DEVICE_AUXPGA_DISABLE:
+        D("CAD_IOCTL_CMD_DEVICE_AUXPGA_DISABLE\n");
+        break;
+        
+    case CAD_IOCTL_CMD_SET_STREAM_BITRATE:
+        D("CAD_IOCTL_CMD_SET_STREAM_BITRATE\n");
+        break;
+    case CAD_IOCTL_CMD_SET_AAC_SBR_PS:
+        D("CAD_IOCTL_CMD_SET_AAC_SBR_PS\n");
+        break;
+    case CAD_IOCTL_CMD_DUAL_MONO_REMAP:
+        D("CAD_IOCTL_CMD_DUAL_MONO_REMAP\n");
+        break;
+    case CAD_IOCTL_CMD_AAC_DO_SAMPLE_SLIP:
+        D("CAD_IOCTL_CMD_DUAL_MONO_REMAP\n");
+        break;
+    case CAD_IOCTL_CMD_DEVICE_SET_GLOBAL_DEFAULT:
+        D("CAD_IOCTL_CMD_DEVICE_SET_GLOBAL_DEFAULT\n");
+        break;
+
+    default:
+        break;
+    }
+
+    return;
+}
+
+
 void set_audio_ctrl_handle(u32 handle)
 {
+    KDEBUG_FUNC();
 	audio_ctrl_handle = handle;
 }
 
 enum cad_int_device_id qdsp6_volume_device_id_mapping(u32 device_id)
 {
-    KDEBUG_FUNC();
+    D("device_id=%08x\n", device_id );
 	switch (device_id) {
 	case CAD_HW_DEVICE_ID_HANDSET_MIC:
 		return INT_CAD_HW_DEVICE_ID_HANDSET_MIC;
@@ -262,7 +342,7 @@ s32 qdsp6_volume_mapping(u32 device_id, s32 percentage)
 {
 	s32 max_gain = 0;
 	s32 min_gain = 0;
-
+    KDEBUG_FUNC();
 	if (device_id == INT_CAD_HW_DEVICE_ID_INVALID) {
 		pr_err("%s: invalid device\n", __func__);
 		return 0xFFFFFFFF;
@@ -423,7 +503,9 @@ s32 qdsp6_volume_ioctl(s32 session_id, u32 cmd_code,
 	u32 rpc_cmd_buf_len1 = 0;
 	union adsp_audio_event event_payload1;
 
-    KDEBUG_FUNC();
+    D("session_id=%d cmd_code=0x%08x cmd_buf cmd_len=%d\n", 
+      session_id, cmd_code, cmd_len);
+    qdsp6_volume_ioctl_cmd_debug(cmd_code);
 
 	memset(&event_payload, 0, sizeof(event_payload));
 	memset(&event_payload1, 0, sizeof(event_payload1));
