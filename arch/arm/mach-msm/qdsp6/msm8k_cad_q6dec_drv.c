@@ -64,6 +64,12 @@
 #include <mach/qdsp6/msm8k_cad_module.h>
 #include <mach/qdsp6/msm8k_cad_q6dec_session.h>
 
+#if 1
+#define KDEBUG_FUNC() printk("msm8k_cad_q6dec: %s()\n", __FUNCTION__)
+#else
+#define KDEBUG_FUNC() do {} while (0)
+#endif
+
 static struct q6dec_data   cad_q6dec_data;
 
 
@@ -71,6 +77,7 @@ static s32 cad_q6dec_open(s32 session_id,
 			struct cad_open_struct_type *open_param)
 {
 	struct q6dec_session_data *session = NULL;
+    KDEBUG_FUNC();
 	if (!open_param || session_id >= CAD_MAX_SESSION || session_id <= 0)
 		return CAD_RES_FAILURE;
 
@@ -95,6 +102,7 @@ static s32 cad_q6dec_close(s32 session_id)
 	struct q6dec_session_data *session =
 	cad_q6dec_data.used_session_list;
 	struct q6dec_session_data *prev_session = NULL;
+    KDEBUG_FUNC();
 	if (session_id >= CAD_MAX_SESSION || session_id <= 0)
 		return CAD_RES_FAILURE;
 
@@ -127,6 +135,7 @@ static s32 cad_q6dec_write(s32 session_id,
 {
 	struct q6dec_session_data *session =
 	cad_q6dec_data.used_session_list;
+    KDEBUG_FUNC();
 	if (!buf)
 		return CAD_RES_FAILURE;
 
@@ -155,7 +164,7 @@ static s32 cad_q6dec_ioctl(s32         session_id,
 {
 	struct q6dec_session_data *session =
 		cad_q6dec_data.used_session_list;
-
+    KDEBUG_FUNC();
 	while (session) {
 		if (session->session_id == session_id) {
 			if (cad_q6dec_session_ioctl(session, cmd_code,
@@ -175,6 +184,7 @@ static s32 cad_q6dec_ioctl(s32         session_id,
 s32 cad_audio_dec_dinit(void)
 {
 	struct q6dec_session_data *session;
+    KDEBUG_FUNC();
 	while (cad_q6dec_data.free_session_list) {
 		session = cad_q6dec_data.free_session_list->next;
 		cad_q6dec_session_deinit(cad_q6dec_data.free_session_list);
@@ -206,6 +216,7 @@ s32 cad_audio_dec_init(struct cad_func_tbl_type **func_tbl)
 		cad_q6dec_ioctl
 	};
 	*func_tbl = NULL;
+    KDEBUG_FUNC();
 
 	memset(&cad_q6dec_data, 0, sizeof(struct q6dec_data));
 

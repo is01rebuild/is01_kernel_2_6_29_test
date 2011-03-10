@@ -71,6 +71,12 @@
 #define MODULE_NAME "CAD"
 
 #if 1
+#define KDEBUG_FUNC() printk("msm8k_cad: %s()\n", __FUNCTION__)
+#else
+#define KDEBUG_FUNC() do {} while (0)
+#endif
+
+#if 1
 #define D(fmt, args...) printk(KERN_INFO "msm8k_cad: " fmt, ##args)
 #else
 #define D(fmt, args...) do {} while (0)
@@ -529,7 +535,7 @@ static s32 get_gpios(struct platform_device *pdev)
 {
 	s32			rc;
 	struct resource		*res;
-
+    KDEBUG_FUNC();
 	rc = CAD_RES_SUCCESS;
 
 	get_i2s_gpios(pdev);
@@ -600,7 +606,7 @@ static s32 get_i2s_gpios(struct platform_device *pdev)
 {
 	s32			rc;
 	struct resource		*res;
-
+    KDEBUG_FUNC();
 	rc = CAD_RES_SUCCESS;
 
 	/* sdac_din - data in line*/
@@ -716,7 +722,7 @@ u8 release_ref_count(void)
 int audio_resync_afe_clk()
 {
 	uint32_t	reg;
-
+    KDEBUG_FUNC();
 	reg = readl(g_audio_reg_base);
 	reg |= HWIO_AUDIO_WB_CTL_RX_RESET_BMSK;
 	writel(reg, g_audio_reg_base);

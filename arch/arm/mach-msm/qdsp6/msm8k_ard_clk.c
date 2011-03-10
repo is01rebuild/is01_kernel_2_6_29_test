@@ -67,9 +67,14 @@ static struct clk	*tx_clk;
 static struct clk	*ecodec_clk;
 static struct clk	*sdac_clk;
 
+#if 1
+#define KDEBUG_FUNC() printk("msm8k_cad_clk: %s()\n", __FUNCTION__)
+#else
+#define KDEBUG_FUNC() do {} while (0)
+#endif
 
 #if 1
-#define D(fmt, args...) printk(KERN_INFO "msm8k_cad: " fmt, ##args)
+#define D(fmt, args...) printk(KERN_INFO "msm8k_cad_clk: " fmt, ##args)
 #else
 #define D(fmt, args...) do {} while (0)
 #endif
@@ -78,7 +83,7 @@ static struct clk	*sdac_clk;
 void ard_clk_enable_internal_codec_clk_tx(void)
 {
 	s32 rc = CAD_RES_SUCCESS;
-
+    KDEBUG_FUNC();
 	if (tx_clk != NULL)
 		return;
 
@@ -99,7 +104,7 @@ void ard_clk_enable_internal_codec_clk_tx(void)
 void ard_clk_enable_internal_codec_clk_rx(void)
 {
 	s32 rc = CAD_RES_SUCCESS;
-
+    KDEBUG_FUNC();
 	if (rx_clk != NULL)
 		return;
 
@@ -121,7 +126,7 @@ void ard_clk_enable_internal_codec_clk_rx(void)
 void ard_clk_enable_external_codec_clk(void)
 {
 	s32 rc = CAD_RES_SUCCESS;
-
+    KDEBUG_FUNC();
 	if (ecodec_clk != NULL)
 		return;
 
@@ -142,7 +147,7 @@ void ard_clk_enable_sdac_rx_clk(void)
 {
 	/* Enable and Select SDAC clks if either I2S path is active */
 	s32 rc = CAD_RES_SUCCESS;
-
+    KDEBUG_FUNC();
 	if (sdac_clk != NULL)
 		return;
 
@@ -163,7 +168,7 @@ void ard_clk_enable_sdac_tx_clk(void)
 {
 	/* Enable and Select SDAC clks if either I2S path is active */
 	s32 rc = CAD_RES_SUCCESS;
-
+    KDEBUG_FUNC();
 	if (sdac_clk != NULL)
 		return;
 
@@ -182,6 +187,7 @@ void ard_clk_enable_sdac_tx_clk(void)
 
 void ard_clk_disable_internal_codec_clk_tx(void)
 {
+    KDEBUG_FUNC();
 	if (tx_clk == NULL)
 		return;
 
@@ -192,6 +198,7 @@ void ard_clk_disable_internal_codec_clk_tx(void)
 
 void ard_clk_disable_internal_codec_clk_rx(void)
 {
+    KDEBUG_FUNC();
 	if (rx_clk == NULL)
 		return;
 
@@ -203,6 +210,7 @@ void ard_clk_disable_internal_codec_clk_rx(void)
 
 void ard_clk_disable_external_codec_clk(void)
 {
+    KDEBUG_FUNC();
 	if (ecodec_clk == NULL)
 		return;
 
@@ -213,6 +221,7 @@ void ard_clk_disable_external_codec_clk(void)
 
 void ard_clk_disable_sdac_clk(void)
 {
+    KDEBUG_FUNC();
 	if (sdac_clk == NULL)
 		return;
 
@@ -225,6 +234,7 @@ void ard_clk_disable_sdac_clk(void)
 void ard_clk_set_icodec_rx_clk(void)
 {
 	s32 rc = CAD_RES_SUCCESS;
+    KDEBUG_FUNC();
 	/* Frequency in Hz - 48KHz */
 	rc = clk_set_rate(rx_clk, 12288000);
 
@@ -236,7 +246,7 @@ void ard_clk_set_icodec_rx_clk(void)
 void ard_clk_set_icodec_tx_clk(void)
 {
 	s32 rc = CAD_RES_SUCCESS;
-
+    KDEBUG_FUNC();
 	rc = clk_set_rate(tx_clk, g_clk_info.tx_clk_freq*256);
 
 	if (rc != CAD_RES_SUCCESS)
@@ -247,6 +257,7 @@ void ard_clk_set_ecodec_clk(void)
 {
 
 	s32 rc = CAD_RES_SUCCESS;
+    KDEBUG_FUNC();
 	/* Frequency in Hz - 8Khz for AUX PCM now, later need to change to
 	 * support I2S
 	 */
@@ -258,7 +269,7 @@ void ard_clk_set_ecodec_clk(void)
 void ard_clk_set_sdac_rx_clk(void)
 {
 	s32 rc = CAD_RES_SUCCESS;
-
+    KDEBUG_FUNC();
 	/* Frequency in Hz - 48KHz */
 	rc = clk_set_rate(sdac_clk, 12288000);
 
@@ -269,7 +280,7 @@ void ard_clk_set_sdac_rx_clk(void)
 void ard_clk_set_sdac_tx_clk(void)
 {
 	s32 rc = CAD_RES_SUCCESS;
-
+    KDEBUG_FUNC();
 	/* Frequency in Hz - 8KHz */
 	rc = clk_set_rate(sdac_clk, 2048000);
 
@@ -279,6 +290,7 @@ void ard_clk_set_sdac_tx_clk(void)
 
 void ard_clk_enable(u32 dev_id)
 {
+    KDEBUG_FUNC();
 	switch (dev_id) {
 	case 0:
 		ard_clk_enable_internal_codec_clk_rx();
@@ -309,6 +321,7 @@ void ard_clk_enable(u32 dev_id)
 
 void ard_clk_disable(u32 dev_id)
 {
+    KDEBUG_FUNC();
 	switch (dev_id) {
 	case 0:
 		ard_clk_disable_internal_codec_clk_rx();

@@ -67,8 +67,8 @@
 #include <mach/qdsp6/msm8k_adsp_audio_stream_ioctl.h>
 
 
-#if 0
-#define D(fmt, args...) printk(KERN_INFO "msm8k_cad: " fmt, ##args)
+#if 1
+#define D(fmt, args...) printk(KERN_INFO "msm8k_cad_q6dec_session: " fmt, ##args)
 #else
 #define D(fmt, args...) do {} while (0)
 #endif

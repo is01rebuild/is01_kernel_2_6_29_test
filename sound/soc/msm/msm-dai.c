@@ -35,6 +35,19 @@
 #include "qsd-pcm.h"
 #endif
 
+#if 0
+#define KDEBUG_FUNC() printk("msm-dai: %s()\n", __FUNCTION__)
+#else
+#define KDEBUG_FUNC() do {} while (0)
+#endif
+
+#if 0
+#define D(fmt, args...) printk(KERN_INFO "msm-dai:%s(): " fmt, __FUNCTION__  ,##args)
+#else
+#define D(fmt, args...) do {} while (0)
+#endif
+
+
 struct snd_soc_dai msm_dais[] = {
 {
 	.name = "CODEC_DAI",

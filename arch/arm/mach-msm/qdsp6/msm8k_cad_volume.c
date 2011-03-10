@@ -87,8 +87,14 @@
 #include <mach/qdsp6/msm8k_ardi.h>
 
 
-#if 0
-#define D(fmt, args...) printk(KERN_INFO "msm8k_vol: " fmt, ##args)
+#if 1
+#define KDEBUG_FUNC() printk("msm8k_cad_volume: %s()\n", __FUNCTION__)
+#else
+#define KDEBUG_FUNC() do {} while (0)
+#endif
+
+#if 1
+#define D(fmt, args...) printk(KERN_INFO "msm8k_cad_volume: " fmt, ##args)
 #else
 #define D(fmt, args...) do {} while (0)
 #endif
@@ -159,6 +165,7 @@ void set_audio_ctrl_handle(u32 handle)
 
 enum cad_int_device_id qdsp6_volume_device_id_mapping(u32 device_id)
 {
+    KDEBUG_FUNC();
 	switch (device_id) {
 	case CAD_HW_DEVICE_ID_HANDSET_MIC:
 		return INT_CAD_HW_DEVICE_ID_HANDSET_MIC;
@@ -275,23 +282,27 @@ s32 qdsp6_volume_mapping(u32 device_id, s32 percentage)
 s32 qdsp6_volume_open(s32 session_id,
 	struct cad_open_struct_type *open_param)
 {
+    KDEBUG_FUNC();
 	return CAD_RES_SUCCESS;
 }
 
 s32 qdsp6_volume_close(s32 session_id)
 {
+    KDEBUG_FUNC();
 	return CAD_RES_SUCCESS;
 }
 
 s32 qdsp6_volume_write(s32 session_id,
 	struct cad_buf_struct_type *buf_ptr)
 {
+    KDEBUG_FUNC();
 	return CAD_RES_SUCCESS;
 }
 
 s32 qdsp6_volume_read(s32 session_id,
 	struct cad_buf_struct_type *buf_ptr)
 {
+    KDEBUG_FUNC();
 	return CAD_RES_SUCCESS;
 }
 
@@ -331,6 +342,7 @@ s32 handle_voice_mute(s32 session_id,
 {
 	u32 path = 1;
 	s32 rc;
+    KDEBUG_FUNC();
 	rc = send_voice_mute(audio_ctrl_handle, CAD_HW_DEVICE_ID_VOICE, path,
 		stream_mute_buf->mute);
 
@@ -373,7 +385,7 @@ s32 handle_voice_vol(s32 session_id,
 {
 	u32 path = 0;
 	s32 rc;
-
+    KDEBUG_FUNC();
 	rc = send_voice_vol(audio_ctrl_handle, CAD_HW_DEVICE_ID_VOICE, path,
 		stream_vol_buf->volume);
 
@@ -411,6 +423,7 @@ s32 qdsp6_volume_ioctl(s32 session_id, u32 cmd_code,
 	u32 rpc_cmd_buf_len1 = 0;
 	union adsp_audio_event event_payload1;
 
+    KDEBUG_FUNC();
 
 	memset(&event_payload, 0, sizeof(event_payload));
 	memset(&event_payload1, 0, sizeof(event_payload1));
@@ -1026,6 +1039,7 @@ done:
 
 int cad_volume_dinit(void)
 {
+    KDEBUG_FUNC();
 	memset(qdsp6_volume_cache_tbl, 0, sizeof(qdsp6_volume_cache_tbl));
 	stream_volume_cache = 0;
 	return CAD_RES_SUCCESS;
@@ -1043,6 +1057,7 @@ int cad_volume_init(struct cad_func_tbl_type **func_tbl)
 		qdsp6_volume_ioctl
 	};
 
+    KDEBUG_FUNC();
 	*func_tbl = &vtable;
 
 	/* Set up the volume cache table by default values. */
@@ -1263,7 +1278,7 @@ EXPORT_SYMBOL(cad_apply_cached_vol_on_dev);
 int volume_set_max_vol_all(void)
 {
 	int i;
-
+    KDEBUG_FUNC();
 	for (i = 0; i < INT_CAD_HW_DEVICE_ID_MAX_NUM; i++) {
 		qdsp6_volume_cache_tbl[i].valid_current_volume = 1;
 		qdsp6_volume_cache_tbl[i].current_volume =
