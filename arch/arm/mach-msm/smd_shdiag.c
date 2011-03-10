@@ -19,6 +19,11 @@
 
 #include <mach/sharp_smem.h>
 
+#if 0
+#define D(fmt, args...) printk(KERN_INFO "msd_shdiag: " fmt, ##args)
+#else
+#define D(fmt, args...) do {} while (0)
+#endif
 
 #if 1
 struct smem_comm_shdiag {
@@ -30,43 +35,46 @@ struct smem_comm_shdiag {
 
 static int smd_shdiag_open(struct inode *inode, struct file *filp)
 {
-	printk("%s\n", __func__);
+	D("%s()\n", __func__);
 	return 0;
 }
 
 
 static ssize_t smd_shdiag_read(struct file *filp, char __user *buf,size_t count, loff_t *ppos)
 {
-	sharp_smem_common_type *p_sh_smem_common_type = NULL;
-	struct smem_comm_shdiag  smem_comm_data;
+    sharp_smem_common_type *p_sh_smem_common_type = NULL;
+    struct smem_comm_shdiag  smem_comm_data;
 
-	printk("%s\n", __func__);
+    D("%s()\n", __func__);
 
-	p_sh_smem_common_type = sh_smem_get_common_address();
-	if( p_sh_smem_common_type != NULL){
-		smem_comm_data.BootMode  = p_sh_smem_common_type->shdiag_BootMode;
-		smem_comm_data.FlagData  = p_sh_smem_common_type->shdiag_FlagData;
-		smem_comm_data.FirstBoot = p_sh_smem_common_type->shdiag_FirstBoot;
+    p_sh_smem_common_type = sh_smem_get_common_address();
+    if( p_sh_smem_common_type != NULL){
+        smem_comm_data.BootMode  = p_sh_smem_common_type->shdiag_BootMode;
+        smem_comm_data.FlagData  = p_sh_smem_common_type->shdiag_FlagData;
+        smem_comm_data.FirstBoot = p_sh_smem_common_type->shdiag_FirstBoot;
 
-		if( copy_to_user( buf, (void *)&smem_comm_data, sizeof(smem_comm_data) ) ){
-			printk( "copy_to_user failed\n" );
-			return -EFAULT;
-		}
-	} else {
-		printk("[SH_DIAG]smd_shdiag_probe: smem_alloc FAILE\n");
-	}
-	return count;
+        D("BootMode=0x%x FlagData=0x%lx FirstBoot=0x%x\n",
+          smem_comm_data.BootMode, smem_comm_data.FlagData, smem_comm_data.FirstBoot );
+
+        if( copy_to_user( buf, (void *)&smem_comm_data, sizeof(smem_comm_data) ) ){
+            printk( "copy_to_user failed\n" );
+            return -EFAULT;
+        }
+    } else {
+        printk("[SH_DIAG]smd_shdiag_probe: smem_alloc FAILE\n");
+    }
+    return count;
 }
 
 static ssize_t smd_shdiag_write(struct file *filp, const char __user *buf,size_t count, loff_t *ppos)
 {
-	printk("%s\n", __func__);
+	D("%s()\n", __func__);
 	return count;
 }
 
 static int smd_shdiag_release(struct inode *inode, struct file *filp)
 {
-	printk("%s\n", __func__);
+	D("%s()\n", __func__);
 	return 0;
 }
 

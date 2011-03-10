@@ -70,6 +70,18 @@
 #include "avs.h"
 #include "clock.h"
 
+#if 1
+#define KDEBUG_FUNC() printk("acpuclock-8x50: %s()\n", __FUNCTION__)
+#else
+#define KDEBUG_FUNC() do {} while (0)
+#endif
+
+#if 1
+#define D(fmt, args...) printk(KERN_INFO "acpuclock-8x50: %s(): " fmt, __FUNCTION__  ,##args)
+#else
+#define D(fmt, args...) do {} while (0)
+#endif
+
 #define SHOT_SWITCH 4
 #define HOP_SWITCH 5
 #define SIMPLE_SLEW 6
@@ -155,7 +167,7 @@ static void __init cpufreq_table_init(void)
 {
 	unsigned int i;
 	unsigned int freq_cnt = 0;
-
+    KDEBUG_FUNC();
 	/* Construct the freq_table table from acpu_freq_tbl since the
 	 * freq_table values need to match frequencies specified in
 	 * acpu_freq_tbl and acpu_freq_tbl needs to be fixed up during init.
@@ -196,6 +208,7 @@ static struct clock_state drv_state = { 0 };
 
 unsigned long clk_get_max_axi_khz(void)
 {
+    KDEBUG_FUNC();
 	return 128000;
 }
 EXPORT_SYMBOL(clk_get_max_axi_khz);
@@ -203,7 +216,7 @@ EXPORT_SYMBOL(clk_get_max_axi_khz);
 static void scpll_set_freq(uint32_t lval, unsigned freq_switch)
 {
 	uint32_t regval;
-
+    KDEBUG_FUNC();
 	if (lval > 33)
 		lval = 33;
 	if (lval < 10)
@@ -245,7 +258,7 @@ static void scpll_set_freq(uint32_t lval, unsigned freq_switch)
 static void scpll_apps_enable(bool state)
 {
 	uint32_t regval;
-
+    KDEBUG_FUNC();
 	/* Wait for any frequency switches to finish. */
 	while (readl(SCPLL_STATUS_ADDR) & 0x1)
 		;
@@ -278,7 +291,7 @@ static void scpll_init(void)
 	uint32_t regval;
 #define L_VAL_384MHZ	0xA
 #define L_VAL_768MHZ	0x14
-
+    KDEBUG_FUNC();
 	/* power down scpll */
 	writel(0x0, SCPLL_CTL_ADDR);
 
@@ -349,7 +362,7 @@ static void scpll_init(void)
 static void config_pll(struct clkctl_acpu_speed *s)
 {
 	uint32_t regval;
-
+    KDEBUG_FUNC();
 	if (s->pll == ACPU_PLL_3)
 		scpll_set_freq(s->sc_l_value, HOP_SWITCH);
 	/* Configure the PLL divider mux if we plan to use it. */
@@ -396,7 +409,7 @@ static void config_pll(struct clkctl_acpu_speed *s)
 void config_switching_pll(void)
 {
 	uint32_t regval;
-
+    KDEBUG_FUNC();
 	/* Use AXI clock temporarily when we're changing
 	 * scpll. PLL0 is faster, but it may not be available during
 	 * early modem initialization, and we will only be using this
@@ -411,6 +424,7 @@ void config_switching_pll(void)
 
 static int acpuclk_set_vdd_level(int vdd)
 {
+    KDEBUG_FUNC();
 	if (drv_state.acpu_set_vdd)
 		return drv_state.acpu_set_vdd(vdd);
 	else {
@@ -426,6 +440,7 @@ int acpuclk_set_rate(unsigned long rate, enum setrate_reason reason)
 	struct clkctl_acpu_speed *tgt_s, *strt_s;
 	int rc = 0;
 	int freq_index = 0;
+    D("rate=%lu reason=%d\n", rate , (int)reason );
 
 	if (reason == SETRATE_CPUFREQ)
 		mutex_lock(&drv_state.lock);
@@ -529,7 +544,7 @@ static void __init acpuclk_init(void)
 	struct clkctl_acpu_speed *speed;
 	uint32_t div, sel, regval;
 	int rc;
-
+    KDEBUG_FUNC();
 	/* Determine the source of the Scorpion clock. */
 	regval = readl(SPSS_CLK_SEL_ADDR);
 	switch ((regval & 0x6) >> 1) {
@@ -589,17 +604,20 @@ static void __init acpuclk_init(void)
 
 unsigned long acpuclk_get_rate(void)
 {
+    KDEBUG_FUNC();
 	return drv_state.current_speed->a11clk_khz;
 }
 
 uint32_t acpuclk_get_switch_time(void)
 {
+    KDEBUG_FUNC();
 	return drv_state.acpu_switch_time_us;
 }
 
 unsigned long acpuclk_power_collapse(void)
 {
 	int ret = acpuclk_get_rate();
+    KDEBUG_FUNC();
 	acpuclk_set_rate(drv_state.power_collapse_khz, SETRATE_PC);
 	return ret * 1000;
 }
@@ -607,6 +625,7 @@ unsigned long acpuclk_power_collapse(void)
 unsigned long acpuclk_wait_for_irq(void)
 {
 	int ret = acpuclk_get_rate();
+    KDEBUG_FUNC();
 	acpuclk_set_rate(drv_state.wait_for_irq_khz, SETRATE_SWFI);
 	return ret * 1000;
 }
@@ -623,7 +642,7 @@ static void __init acpu_freq_tbl_fixup(void)
 	uint32_t tcsr_spare2, pll0_m_val;
 	unsigned int max_acpu_khz, pll0_fixup;
 	unsigned int i;
-
+    KDEBUG_FUNC();
 	/* pll0_m_val will be 36 for CDMA-only and 4 otherwise,
 	 * indicating PLL0 is running at 235MHz, not 245MHz */
 	pll0_m_val = readl(PLL0_M_VAL_ADDR) & 0x7FFFF;
@@ -687,6 +706,7 @@ static void __init lpj_init(void)
 {
 	int i;
 	const struct clkctl_acpu_speed *base_clk = drv_state.current_speed;
+    KDEBUG_FUNC();
 	for (i = 0; acpu_freq_tbl[i].a11clk_khz; i++) {
 		acpu_freq_tbl[i].lpj = cpufreq_scale(loops_per_jiffy,
 						base_clk->a11clk_khz,
@@ -700,7 +720,7 @@ static int __init acpu_avs_init(int (*set_vdd) (int), int khz)
 	int i;
 	int freq_count = 0;
 	int freq_index = -1;
-
+    KDEBUG_FUNC();
 	for (i = 0; acpu_freq_tbl[i].a11clk_khz; i++) {
 		freq_count++;
 		if (acpu_freq_tbl[i].a11clk_khz == khz)
@@ -713,6 +733,7 @@ static int __init acpu_avs_init(int (*set_vdd) (int), int khz)
 
 void __init msm_acpu_clock_init(struct msm_acpu_clock_platform_data *clkdata)
 {
+    KDEBUG_FUNC();
 	mutex_init(&drv_state.lock);
 	drv_state.acpu_switch_time_us = clkdata->acpu_switch_time_us;
 	drv_state.max_speed_delta_khz = clkdata->max_speed_delta_khz;

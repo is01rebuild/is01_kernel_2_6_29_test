@@ -81,7 +81,7 @@
 #include <mach/qdsp6/msm8k_cad_devices.h>
 #include <mach/qdsp6/msm8k_ard_adie.h>
 
-#if 0
+#if 1
 #define D(fmt, args...) printk(KERN_INFO "ARD: " fmt, ##args)
 #else
 #define D(fmt, args...) do {} while (0)

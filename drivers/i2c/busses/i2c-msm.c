@@ -39,7 +39,18 @@
 #include <mach/sharp_smem.h>
 #endif /* FEATURE_SHLOCAL_SHI2C */
 
-//#define DEBUG 0
+#if 1
+#define KDEBUG_FUNC() printk("i2c-msm: %s()\n", __FUNCTION__)
+#else
+#define KDEBUG_FUNC() do {} while (0)
+#endif
+
+#if 1
+#define D(fmt, args...) printk(KERN_INFO "i2c-msm: %s(): " fmt, __FUNCTION__  ,##args)
+#else
+#define D(fmt, args...) do {} while (0)
+#endif
+
 
 #ifdef FEATURE_SHLOCAL_SHI2C
 
@@ -48,17 +59,11 @@
 #define SH_I2C_WAIT 30
 #endif /* SH_I2C_WAIT_NEED */
 
-
-
 #define I2C_CLK_STATE_MASK 0xe000
 #define I2C_CLK_STATE_BUSIDLE 0x0000
 
-
-
 #define XFER_RETRY   2
 static int msm_i2c_sub_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num);
-
-
 
 #define I2CPROG		0x3000000c
 #define I2CVERS		0x00010001
@@ -143,7 +148,7 @@ struct msm_i2c_dev {
 static void
 dump_status(uint32_t status)
 {
-	printk("STATUS (0x%.8x): ", status);
+	printk("i2c-msm: STATUS (0x%.8x): ", status);
 	if (status & I2C_STATUS_BUS_MASTER)
 		printk("MST ");
 	if (status & I2C_STATUS_BUS_ACTIVE)
@@ -160,6 +165,12 @@ dump_status(uint32_t status)
 		printk("RD_FULL ");
 	if (status & I2C_STATUS_WR_BUFFER_FULL)
 		printk("WR_FULL ");
+
+	if (status & I2C_STATUS_RX_DATA_STATE )
+		printk("RX_DATA ");
+	if (status & I2C_STATUS_LOW_CLK_STATE )
+		printk("LOW_CLK ");
+	
 	if (status & I2C_STATUS_FAILED)
 		printk("FAIL 0x%x", (status & I2C_STATUS_FAILED));
 	printk("\n");
@@ -268,9 +279,16 @@ msm_i2c_interrupt(int irq, void *devid)
 	struct msm_i2c_dev *dev = devid;
 	uint32_t status = readl(dev->base + I2C_STATUS);
 	int err = 0;
-
+    //if( dev->msg->addr == 0x5b ) KDEBUG_FUNC();
 #if DEBUG
-	dump_status(status);
+	if( dev->msg->addr != 0x15 &&
+	    dev->msg->addr != 0x1c &&
+	    dev->msg->addr != 0x38 &&
+	    dev->msg->addr != 0x44 ) {
+        // i2c addr 0x48 と 0x5b は表示する
+        D("addr=0x%02x\n", dev->msg->addr );
+        dump_status(status);
+    }
 #endif
 
 	spin_lock(&dev->lock);
@@ -418,6 +436,7 @@ msm_i2c_rmutex_lock(struct msm_i2c_dev *dev)
 {
 	int gotlock = 0;
 	unsigned long flags;
+
 	if (!dev->pdata->rmutex)
 		return;
 	do {
@@ -446,6 +465,7 @@ msm_i2c_rmutex_unlock(struct msm_i2c_dev *dev)
 	unsigned long flags;
 	if (!dev->pdata->rmutex)
 		return;
+
 	remote_spin_lock_irqsave(&dev->rspin_lock, flags);
 	#ifdef FEATURE_SHLOCAL_SHI2C
 	*(dev->pdata->rmutex) = SH_I2C_IDLE_STATE;
@@ -536,7 +556,7 @@ msm_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
 {
 	int	ret;
 	int	cnt;
-
+    KDEBUG_FUNC();
 	for (cnt=0; cnt<=XFER_RETRY; cnt++) {
 		ret = msm_i2c_sub_xfer(adap, msgs, num);
 		if (ret >= 0) {

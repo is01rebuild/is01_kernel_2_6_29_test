@@ -22,6 +22,19 @@
 #include <linux/cpufreq.h>
 #include "acpuclock.h"
 
+#if 1
+#define KDEBUG_FUNC() printk("cpufreq: %s()\n", __FUNCTION__)
+#else
+#define KDEBUG_FUNC() do {} while (0)
+#endif
+
+#if 1
+#define D(fmt, args...) printk(KERN_INFO "cpufreq: %s(): " fmt, __FUNCTION__  ,##args)
+#else
+#define D(fmt, args...) do {} while (0)
+#endif
+
+
 #define dprintk(msg...) \
 		cpufreq_debug_printk(CPUFREQ_DEBUG_DRIVER, "cpufreq-msm", msg)
 
@@ -59,7 +72,7 @@ static int msm_cpufreq_target(struct cpufreq_policy *policy,
 	struct cpufreq_freqs freqs;
 	struct cpufreq_frequency_table *table =
 		cpufreq_frequency_get_table(smp_processor_id());
-
+    D("target_freq=%u relation=%u\n", target_freq, relation);
 	if (cpufreq_frequency_table_target(policy, table, target_freq, relation,
 			&index)) {
 		pr_err("cpufreq: invalid target_freq: %d\n", target_freq);
@@ -70,6 +83,8 @@ static int msm_cpufreq_target(struct cpufreq_policy *policy,
 	dprintk("target %d r %d (%d-%d) selected %d\n", target_freq,
 		relation, policy->min, policy->max, table[index].frequency);
 #endif
+D("target %d r %d (%d-%d) selected %d\n", target_freq,
+		relation, policy->min, policy->max, table[index].frequency);
 	freqs.old = policy->cur;
 	freqs.new = table[index].frequency;
 	freqs.cpu = smp_processor_id();

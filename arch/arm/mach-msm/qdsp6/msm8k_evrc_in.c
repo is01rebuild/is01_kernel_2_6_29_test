@@ -68,7 +68,7 @@
 #include <mach/qdsp6/msm8k_ard.h>
 #include <mach/qdsp6/msm8k_cad_evrc_format.h>
 #include <mach/qdsp6/msm8k_cad_devices.h>
-
+#define EVRC_DEBUG 1
 #ifdef EVRC_DEBUG
 #define D(fmt, args...) printk(KERN_INFO "msm8k_evrc_in: " fmt, ##args)
 #else

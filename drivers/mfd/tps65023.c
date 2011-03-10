@@ -60,6 +60,18 @@
 #include <mach/vreg.h>
 #include <mach/pmic.h>
 
+#if 1
+#define KDEBUG_FUNC() printk("tps65023: %s()\n", __FUNCTION__)
+#else
+#define KDEBUG_FUNC() do {} while (0)
+#endif
+
+#if 1
+#define D(fmt, args...) printk(KERN_INFO "tps65023: %s(): " fmt, __FUNCTION__  ,##args)
+#else
+#define D(fmt, args...) do {} while (0)
+#endif
+
 /* TPS65023_registers */
 #define TPS65023_VERSION	0
 #define TPS65023_PGOODZ		1
@@ -83,7 +95,7 @@ int tps65023_dcdc3_control(int onoff, int user)
 //	int ret;
 //	struct vreg *vreg_dcdc3;
 	int old_user_status;
-
+    KDEBUG_FUNC();
 	if (!tpsclient)
 		return -ENODEV;
 
@@ -130,7 +142,7 @@ int tps65023_set_dcdc1_level(int mvolts)
 {
 	int val;
 	int ret;
-
+    D("mvolts=%d\n", mvolts);
 	if (!tpsclient)
 		return -ENODEV;
 
@@ -155,7 +167,6 @@ EXPORT_SYMBOL(tps65023_set_dcdc1_level);
 int tps65023_get_dcdc1_level(int *mvolts)
 {
 	int val;
-
 	if (!tpsclient)
 		return -ENODEV;
 
@@ -165,6 +176,9 @@ int tps65023_get_dcdc1_level(int *mvolts)
 		*mvolts = 1600;
 	else
 		*mvolts = (val * 25) + 800;
+
+    D("mvolts=%d\n",*mvolts);
+
 	return 0;
 }
 EXPORT_SYMBOL(tps65023_get_dcdc1_level);
@@ -172,6 +186,7 @@ EXPORT_SYMBOL(tps65023_get_dcdc1_level);
 static int tps65023_probe(struct i2c_client *client,
 		const struct i2c_device_id *dev_id)
 {
+    KDEBUG_FUNC();
 	if (!i2c_check_functionality(client->adapter,
 				I2C_FUNC_SMBUS_BYTE_DATA)) {
 		printk(KERN_ERR "TPS65023 does not support SMBUS_BYTE_DATA.\n");
@@ -185,6 +200,7 @@ static int tps65023_probe(struct i2c_client *client,
 
 static int __devexit tps65023_remove(struct i2c_client *client)
 {
+    KDEBUG_FUNC();
 	tpsclient = NULL;
 	return 0;
 }
@@ -208,7 +224,7 @@ static struct i2c_driver tps65023_driver = {
 static int __init tps65023_init(void)
 {
 	int err;
-	
+    KDEBUG_FUNC();
 	err = i2c_add_driver(&tps65023_driver);
 	
     sh_dcdc3_user = 0;
@@ -219,6 +235,7 @@ static int __init tps65023_init(void)
 
 static void __exit tps65023_exit(void)
 {
+    KDEBUG_FUNC();
 	i2c_del_driver(&tps65023_driver);
 }
 

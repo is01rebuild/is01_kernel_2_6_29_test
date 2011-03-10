@@ -99,7 +99,7 @@ static void		*acdb_handle;
 static void		*ard_acdb_buffer;
 
 
-#if 0
+#if 1
 #define D(fmt, args...) printk(KERN_INFO "msm8k_cad: " fmt, ##args)
 #else
 #define D(fmt, args...) do {} while (0)

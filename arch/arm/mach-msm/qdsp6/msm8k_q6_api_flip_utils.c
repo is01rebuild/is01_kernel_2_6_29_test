@@ -101,7 +101,7 @@
 /* #define AAC_OBJECT_HE_PS		29 */
 
 
-#if 0
+#if 1
 #define D(fmt, args...) printk(KERN_INFO "ARD: " fmt, ##args)
 #else
 #define D(fmt, args...) do {} while (0)

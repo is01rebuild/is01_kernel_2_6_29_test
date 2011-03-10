@@ -85,9 +85,14 @@ u32						device_control_session;
 static struct wake_lock				idle_lock;
 static struct wake_lock				suspend_lock;
 
+#if 1
+#define KDEBUG_FUNC() printk("msm8k_ard: %s()\n", __FUNCTION__)
+#else
+#define KDEBUG_FUNC() do {} while (0)
+#endif
 
-#if 0
-#define D(fmt, args...) printk(KERN_INFO "ARD: " fmt, ##args)
+#if 1
+#define D(fmt, args...) printk(KERN_INFO "msm8k_ard:%s(): " fmt,__FUNCTION__ , ##args)
 #else
 #define D(fmt, args...) do {} while (0)
 #endif
@@ -100,7 +105,7 @@ s32 cad_ard_init(struct cad_func_tbl_type **func_ptr_tbl)
 	static struct cad_func_tbl_type ard_func = {
 		ard_open, ard_close, ard_write, ard_read, ard_ioctl
 	};
-
+    KDEBUG_FUNC();
 	rc = dal_rc = CAD_RES_SUCCESS;
 
 	*func_ptr_tbl = &ard_func;
@@ -191,7 +196,7 @@ s32 cad_ard_dinit(void)
 {
 	s32				rc, dal_rc, i;
 	struct ard_state_struct_type	*local_ard_state = NULL;
-
+    KDEBUG_FUNC();
 	rc = dal_rc = CAD_RES_SUCCESS;
 
 
@@ -251,7 +256,7 @@ s32 ard_open(s32 session_id, struct cad_open_struct_type *open_param)
 	s32				i, rc, dal_rc;
 	u32				open_parm_len;
 	struct cadi_open_struct_type	*op = NULL;
-
+    KDEBUG_FUNC();
 	rc = dal_rc = CAD_RES_SUCCESS;
 	open_parm_len = 0;
 
@@ -350,7 +355,7 @@ s32 ard_close(s32 session_id)
 	struct cad_stream_config_struct_type	*cadr_config = NULL;
 	struct cad_stream_device_struct_type	*strm_dev = NULL;
 	struct ard_state_struct_type            *local_ard_state = NULL;
-
+    KDEBUG_FUNC();
 	rc = dal_rc = CAD_RES_SUCCESS;
 	if (ardsession[session_id]->enabled == ARD_FALSE)
 		return rc;
@@ -495,7 +500,7 @@ s32 ard_ioctl(s32 session_id, u32 cmd_code, void *cmd_buf, u32 cmd_len)
 	struct ard_state_struct_type            *local_ard_state = NULL;
 	struct cad_write_pcm_format_struct_type *pcm_format_struct;
 	struct cad_write_aac_format_struct_type *aac_format_struct;
-
+    KDEBUG_FUNC();
 	rc = dal_rc = CAD_RES_SUCCESS;
 
 	D("ARD ard_IOCTL ses %d, cmd 0X%x\n", session_id, cmd_code);
@@ -1074,16 +1079,19 @@ done:
 
 s32 ard_read(s32 session_id, struct cad_buf_struct_type *buf)
 {
+    KDEBUG_FUNC();
 	return CAD_RES_SUCCESS;
 }
 
 s32 ard_write(s32 session_id, struct cad_buf_struct_type *buf)
 {
+    KDEBUG_FUNC();
 	return CAD_RES_SUCCESS;
 }
 
 void ard_callback_func(union adsp_audio_event *ev_data, void *client_data)
 {
+    KDEBUG_FUNC();
 }
 
 
@@ -1092,7 +1100,7 @@ enum ard_state_ret_enum_type ard_state_control(s32 session_id, u32 dev_id)
 {
 	enum ard_state_ret_enum_type	rc;
 	struct ard_state_struct_type	*local_ard_state = NULL;
-
+    KDEBUG_FUNC();
 	rc = ARD_STATE_RC_SUCCESS;
 
 
@@ -1162,7 +1170,7 @@ enum ard_state_ret_enum_type ard_state_clk_active(s32 session_id, u32 dev_id)
 	enum ard_state_ret_enum_type	rc;
 	enum codec_enum_type		codec_type;
 	struct ard_state_struct_type	*local_ard_state = NULL;
-
+    KDEBUG_FUNC();
 	rc = ARD_STATE_RC_SUCCESS;
 	codec_type = CODEC_INT;
 	res = CAD_RES_SUCCESS;
@@ -1281,7 +1289,7 @@ enum ard_state_ret_enum_type ard_state_active(s32 session_id, u32 dev_id)
 	enum ard_state_ret_enum_type	rc;
 	enum codec_enum_type		codec_type;
 	struct ard_state_struct_type	*local_ard_state = NULL;
-
+    KDEBUG_FUNC();
 	rc = ARD_STATE_RC_SUCCESS;
 	res = CAD_RES_SUCCESS;
 
@@ -1392,7 +1400,7 @@ enum ard_ret_enum_type valid_session_present(u32 dev_id)
 {
 	u8 i = 0;
 	enum ard_ret_enum_type rc;
-
+    KDEBUG_FUNC();
 	rc = ARD_FALSE;
 
 	/* Check if there are any valid stream sessions. */
@@ -1443,6 +1451,7 @@ enum ard_ret_enum_type valid_session_present(u32 dev_id)
 
 enum ard_ret_enum_type check_sampling_rate(void)
 {
+    KDEBUG_FUNC();
 	return ARD_FALSE;
 }
 
@@ -1451,7 +1460,7 @@ enum ard_ret_enum_type device_needs_setup(u32 cad_device)
 	u32				dev_id;
 	enum ard_ret_enum_type		rc;
 	struct ard_state_struct_type	*local_ard_state = NULL;
-
+    KDEBUG_FUNC();
 	rc = ARD_TRUE;
 
 	local_ard_state = &ard_state;
@@ -1472,6 +1481,7 @@ enum ard_ret_enum_type device_needs_setup(u32 cad_device)
 
 void audio_prevent_sleep(s32 session_id)
 {
+    KDEBUG_FUNC();
 	if (ardsession[session_id]->session_type == DEVICE_CTRL_TYPE)
 		return;
 
@@ -1485,6 +1495,7 @@ void audio_prevent_sleep(s32 session_id)
 
 void audio_allow_sleep(s32 session_id)
 {
+    KDEBUG_FUNC();
 	if (ardsession[session_id]->session_type == DEVICE_CTRL_TYPE)
 		return;
 
@@ -1504,7 +1515,7 @@ void print_data(u32 session_id)
 	struct cad_stream_config_struct_type    *cadr_config = NULL;
 	struct cad_stream_device_struct_type    *strm_dev = NULL;
 	struct cad_open_struct_type             *cad_open = NULL;
-
+    KDEBUG_FUNC();
 	cadr = ardsession[session_id]->sess_open_info;
 
 	cad_open = &(cadr->cad_open);

@@ -57,6 +57,18 @@
  * Debug Definitions
  *****************************************************************************/
 
+#if 1
+#define KDEBUG_FUNC() printk("pm2: %s()\n", __FUNCTION__)
+#else
+#define KDEBUG_FUNC() do {} while (0)
+#endif
+
+#if 1
+#define D(fmt, args...) printk(KERN_INFO "pm2: " fmt, __FUNCTION__  ,##args)
+#else
+#define D(fmt, args...) do {} while (0)
+#endif
+
 enum {
 	MSM_PM_DEBUG_SUSPEND = 1U << 0,
 	MSM_PM_DEBUG_POWER_COLLAPSE = 1U << 1,
@@ -68,6 +80,15 @@ enum {
 };
 
 static int msm_pm_debug_mask;
+/*static int msm_pm_debug_mask=
+        MSM_PM_DEBUG_SUSPEND |
+	MSM_PM_DEBUG_POWER_COLLAPSE |
+	MSM_PM_DEBUG_STATE |
+	MSM_PM_DEBUG_CLOCK |
+	MSM_PM_DEBUG_RESET_VECTOR |
+	MSM_PM_DEBUG_SMSM_STATE |
+	MSM_PM_DEBUG_IDLE;
+*/
 module_param_named(
 	debug_mask, msm_pm_debug_mask, int, S_IRUGO | S_IWUSR | S_IWGRP
 );
@@ -157,7 +178,7 @@ static ssize_t msm_pm_mode_attr_show(
 {
 	int ret = -EINVAL;
 	int i;
-
+    KDEBUG_FUNC();
 	for (i = 0; i < MSM_PM_SLEEP_MODE_NR; i++) {
 		struct kernel_param kp;
 
@@ -203,7 +224,7 @@ static ssize_t msm_pm_mode_attr_store(struct kobject *kobj,
 {
 	int ret = -EINVAL;
 	int i;
-
+    KDEBUG_FUNC();
 	for (i = 0; i < MSM_PM_SLEEP_MODE_NR; i++) {
 		struct kernel_param kp;
 
@@ -249,7 +270,7 @@ static int __init msm_pm_mode_sysfs_add(void)
 
 	int i, k;
 	int ret;
-
+    KDEBUG_FUNC();
 	module_kobj = kset_find_obj(module_kset, KBUILD_MODNAME);
 	if (!module_kobj) {
 		printk(KERN_ERR "%s: cannot find kobject for module %s\n",
@@ -341,6 +362,7 @@ mode_sysfs_add_cleanup:
 
 void __init msm_pm_set_platform_data(struct msm_pm_platform_data *data)
 {
+    KDEBUG_FUNC();
 	msm_pm_modes = data;
 }
 
@@ -367,6 +389,7 @@ enum {
  */
 static void msm_pm_config_hw_before_power_down(void)
 {
+    KDEBUG_FUNC();
 #if defined(CONFIG_ARCH_MSM7X27)
         writel(0x1f, APPS_CLK_SLEEP_EN);
         writel(1, APPS_PWRDOWN);
@@ -382,6 +405,7 @@ static void msm_pm_config_hw_before_power_down(void)
  */
 static void msm_pm_config_hw_after_power_up(void)
 {
+    KDEBUG_FUNC();
 	writel(0, APPS_PWRDOWN);
 	writel(0, APPS_CLK_SLEEP_EN);
 }
@@ -391,6 +415,7 @@ static void msm_pm_config_hw_after_power_up(void)
  */
 static void msm_pm_config_hw_before_swfi(void)
 {
+    //KDEBUG_FUNC();
 #ifdef CONFIG_ARCH_MSM_SCORPION
 	writel(0x1f, APPS_CLK_SLEEP_EN);
 #else
@@ -405,6 +430,7 @@ static void msm_pm_config_hw_before_swfi(void)
  */
 static void msm_pm_timeout(void)
 {
+    KDEBUG_FUNC();
 #if defined(CONFIG_MSM_PM_TIMEOUT_RESET_CHIP)
 	printk(KERN_EMERG "%s(): resetting chip\n", __func__);
 	msm_proc_comm(PCOM_RESET_CHIP_IMM, NULL, NULL);
@@ -485,7 +511,7 @@ static inline bool msm_pm_any_clear(uint32_t source, uint32_t flag)
 static int msm_pm_poll_state(int nr_grps, struct msm_pm_polled_group *grps)
 {
 	int i, k;
-
+    KDEBUG_FUNC();
 	for (i = 0; i < 500000; i++)
 		for (k = 0; k < nr_grps; k++) {
 			bool all_set, all_clear;
@@ -538,6 +564,7 @@ static uint32_t msm_pm_max_sleep_time;
  */
 static int64_t msm_pm_convert_and_cap_time(int64_t time_ns, int64_t limit)
 {
+    KDEBUG_FUNC();
 	do_div(time_ns, NSEC_PER_SEC / SCLK_HZ);
 	return (time_ns > limit) ? limit : time_ns;
 }
@@ -548,7 +575,7 @@ static int64_t msm_pm_convert_and_cap_time(int64_t time_ns, int64_t limit)
 void msm_pm_set_max_sleep_time(int64_t max_sleep_time_ns)
 {
 	unsigned long flags;
-
+    KDEBUG_FUNC();
 	local_irq_save(flags);
 	if (max_sleep_time_ns == 0) {
 		msm_pm_max_sleep_time = 0;
@@ -573,7 +600,7 @@ EXPORT_SYMBOL(msm_pm_set_max_sleep_time);
 void msm_pm_set_shtimer_sleep_time(int64_t max_sleep_time_ns)
 {
 	unsigned long flags;
-
+    KDEBUG_FUNC();
 	local_irq_save(flags);
 	msm_pm_max_sleep_time = (uint32_t)msm_pm_convert_and_cap_time(
 		max_sleep_time_ns, msm_pm_max_sleep_time);
@@ -661,6 +688,7 @@ static DECLARE_BITMAP(msm_pm_clocks_no_tcxo_shutdown, NR_CLKS);
 static sleepcheck_aarm_time sh_sleepcheck_time_aarm;
 static void sh_sleepcheck_set_time( enum msm_pm_time_stats_id id, int64_t t )
 {
+    //KDEBUG_FUNC();
 	switch( id ) {
 	case MSM_PM_STAT_IDLE_WFI:
 		sh_sleepcheck_time_aarm.t_halt += t;
@@ -676,6 +704,7 @@ static void sh_sleepcheck_set_time( enum msm_pm_time_stats_id id, int64_t t )
 
 sleepcheck_aarm_time *sh_sleepcheck_get_time( void )
 {
+    //KDEBUG_FUNC();
 	return &sh_sleepcheck_time_aarm;
 }
 
@@ -686,7 +715,7 @@ static void msm_pm_add_stat(enum msm_pm_time_stats_id id, int64_t t)
 {
 	int i;
 	int64_t bt;
-
+    //KDEBUG_FUNC();
 	msm_pm_stats[id].total_time += t;
 	msm_pm_stats[id].count++;
 	sh_sleepcheck_set_time( id, t );
@@ -739,7 +768,7 @@ static int msm_pm_read_proc
 	int i;
 	char *p = page;
 	char clk_name[16];
-
+    KDEBUG_FUNC();
 	if (count < 1024) {
 		*start = (char *) 0;
 		*eof = 0;
@@ -815,7 +844,7 @@ static int msm_pm_write_proc(struct file *file, const char __user *buffer,
 	int ret;
 	unsigned long flags;
 	int i;
-
+    KDEBUG_FUNC();
 	if (count < strlen(MSM_PM_STATS_RESET)) {
 		ret = -EINVAL;
 		goto write_proc_failed;
@@ -943,7 +972,7 @@ static int msm_pm_power_collapse
 #ifdef CONFIG_MSM_ADM_OFF_AT_POWER_COLLAPSE
 	unsigned id;
 #endif
-
+    KDEBUG_FUNC();
 	MSM_PM_DPRINTK(MSM_PM_DEBUG_SUSPEND|MSM_PM_DEBUG_POWER_COLLAPSE,
 		KERN_INFO, "%s(): idle %d, delay %u, limit %u\n", __func__,
 		(int)from_idle, sleep_delay, sleep_limit);
@@ -1320,7 +1349,7 @@ void arch_idle(void)
 	static int64_t t2;
 	int exit_stat;
 #endif /* CONFIG_MSM_IDLE_STATS */
-
+    //KDEBUG_FUNC();
 	if (!atomic_read(&msm_pm_init_done))
 		return;
 
@@ -1499,7 +1528,7 @@ static int msm_pm_enter(suspend_state_t state)
 	DECLARE_BITMAP(clk_ids, NR_CLKS);
 	int64_t period = 0;
 	int64_t time = 0;
-
+    KDEBUG_FUNC();
 	time = msm_timer_get_smem_clock_time(&period);
 	ret = msm_clock_require_tcxo(clk_ids, NR_CLKS);
 #elif defined(CONFIG_CLOCK_BASED_SLEEP_LIMIT)
@@ -1709,7 +1738,7 @@ static int __init msm_pm_init(void)
 #if 1
 	uint32_t *pSleepSmemSleepDisabled;
 #endif
-
+    KDEBUG_FUNC();
 	pm_power_off = msm_pm_power_off;
 	arm_pm_restart = msm_pm_restart;
 	register_reboot_notifier(&msm_reboot_notifier);

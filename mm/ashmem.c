@@ -30,6 +30,14 @@
 #include <linux/shmem_fs.h>
 #include <linux/ashmem.h>
 
+#if 0
+#define KDEBUG_FUNC()   printk(KERN_INFO "ashmem: %s()\n", __FUNCTION__)
+#define D(fmt, args...) printk(KERN_INFO "ashmem: %s(): " fmt, __FUNCTION__  ,##args)
+#else
+#define KDEBUG_FUNC() do {} while (0)
+#define D(fmt, args...) do {} while (0)
+#endif
+
 #define ASHMEM_NAME_PREFIX "dev/ashmem/"
 #define ASHMEM_NAME_PREFIX_LEN (sizeof(ASHMEM_NAME_PREFIX) - 1)
 #define ASHMEM_FULL_NAME_LEN (ASHMEM_NAME_LEN + ASHMEM_NAME_PREFIX_LEN)
@@ -177,7 +185,7 @@ static int ashmem_open(struct inode *inode, struct file *file)
 {
 	struct ashmem_area *asma;
 	int ret;
-
+KDEBUG_FUNC();
 	ret = nonseekable_open(inode, file);
 	if (unlikely(ret))
 		return ret;
@@ -198,7 +206,7 @@ static int ashmem_release(struct inode *ignored, struct file *file)
 {
 	struct ashmem_area *asma = file->private_data;
 	struct ashmem_range *range, *next;
-
+KDEBUG_FUNC();
 	mutex_lock(&ashmem_mutex);
 	list_for_each_entry_safe(range, next, &asma->unpinned_list, unpinned)
 		range_del(range);
@@ -349,6 +357,7 @@ static int set_name(struct ashmem_area *asma, void __user *name)
 				    name, ASHMEM_NAME_LEN)))
 		ret = -EFAULT;
 	asma->name[ASHMEM_FULL_NAME_LEN-1] = '\0';
+D("name=%s\n", (asma->name + ASHMEM_NAME_PREFIX_LEN) );
 
 out:
 	mutex_unlock(&ashmem_mutex);
@@ -372,10 +381,12 @@ static int get_name(struct ashmem_area *asma, void __user *name)
 		if (unlikely(copy_to_user(name,
 				asma->name + ASHMEM_NAME_PREFIX_LEN, len)))
 			ret = -EFAULT;
+        D("name=%s\n", (asma->name + ASHMEM_NAME_PREFIX_LEN) );
 	} else {
 		if (unlikely(copy_to_user(name, ASHMEM_NAME_DEF,
 					  sizeof(ASHMEM_NAME_DEF))))
 			ret = -EFAULT;
+        D("name=%s\n", ASHMEM_NAME_DEF );
 	}
 	mutex_unlock(&ashmem_mutex);
 
@@ -559,7 +570,7 @@ static long ashmem_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
 	struct ashmem_area *asma = file->private_data;
 	long ret = -ENOTTY;
-
+D("cmd=%08x\n",cmd);
 	switch (cmd) {
 	case ASHMEM_SET_NAME:
 		ret = set_name(asma, (void __user *) arg);

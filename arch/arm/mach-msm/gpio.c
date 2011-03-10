@@ -25,6 +25,21 @@
 
 #include "smd_private.h"
 
+#if 1
+#define D(fmt, args...) printk(KERN_INFO "gpio: " fmt, ##args)
+#define KDEBUG_FUNC2() printk("gpio: %s()\n", __FUNCTION__)
+#else
+#define D(fmt, args...) do {} while (0)
+#define KDEBUG_FUNC2() do {} while (0)
+#endif
+
+#if 1
+#define KDEBUG_FUNC() printk("gpio: %s()\n", __FUNCTION__)
+#else
+#define KDEBUG_FUNC() do {} while (0)
+#endif
+
+
 enum {
 	GPIO_DEBUG_SLEEP = 1U << 0,
 };
@@ -283,6 +298,7 @@ static void msm_gpio_update_both_edge_detect(struct msm_gpio_chip *msm_chip)
 {
 	int loop_limit = 100;
 	unsigned pol, val, val2, intstat;
+//KDEBUG_FUNC();
 	do {
 		val = readl(msm_chip->regs.in);
 		pol = readl(msm_chip->regs.int_pos);
@@ -301,7 +317,7 @@ static int msm_gpio_write(struct gpio_chip *chip, unsigned n, unsigned on)
 	struct msm_gpio_chip *msm_chip = container_of(chip, struct msm_gpio_chip, chip);
 	unsigned b = 1U << (n - chip->start);
 	unsigned v;
-
+KDEBUG_FUNC();
 	v = readl(msm_chip->regs.out);
 	if (on) {
 		writel(v | b, msm_chip->regs.out);
@@ -315,7 +331,7 @@ static int msm_gpio_read(struct gpio_chip *chip, unsigned n)
 {
 	struct msm_gpio_chip *msm_chip = container_of(chip, struct msm_gpio_chip, chip);
 	unsigned b = 1U << (n - chip->start);
-
+KDEBUG_FUNC();
 	return (readl(msm_chip->regs.in) & b) ? 1 : 0;
 }
 
@@ -324,7 +340,7 @@ static int msm_gpio_read_detect_status(struct gpio_chip *chip, unsigned int gpio
 	struct msm_gpio_chip *msm_chip = container_of(chip, struct msm_gpio_chip, chip);
 	unsigned b = 1U << (gpio - chip->start);
 	unsigned v;
-
+KDEBUG_FUNC();
 	v = readl(msm_chip->regs.int_status);
 #if MSM_GPIO_BROKEN_INT_CLEAR
 	v |= msm_chip->int_status_copy;
@@ -336,7 +352,7 @@ static int msm_gpio_clear_detect_status(struct gpio_chip *chip, unsigned int gpi
 {
 	struct msm_gpio_chip *msm_chip = container_of(chip, struct msm_gpio_chip, chip);
 	unsigned b = 1U << (gpio - chip->start);
-
+    //KDEBUG_FUNC();
 #if MSM_GPIO_BROKEN_INT_CLEAR
 	/* Save interrupts that already triggered before we loose them. */
 	/* Any interrupt that triggers between the read of int_status */
@@ -354,7 +370,7 @@ int msm_gpio_configure(struct gpio_chip *chip, unsigned int gpio, unsigned long 
 	struct msm_gpio_chip *msm_chip = container_of(chip, struct msm_gpio_chip, chip);
 	unsigned b = 1U << (gpio - chip->start);
 	unsigned v;
-
+KDEBUG_FUNC2();
 	if (flags & (GPIOF_OUTPUT_LOW | GPIOF_OUTPUT_HIGH))
 		msm_gpio_write(chip, gpio, flags & GPIOF_OUTPUT_HIGH);
 
@@ -416,6 +432,7 @@ int msm_gpio_configure(struct gpio_chip *chip, unsigned int gpio, unsigned long 
 
 static int msm_gpio_get_irq_num(struct gpio_chip *chip, unsigned int gpio, unsigned int *irqp, unsigned long *irqnumflagsp)
 {
+KDEBUG_FUNC();
 	*irqp = MSM_GPIO_TO_INT(gpio);
 	if (irqnumflagsp)
 		*irqnumflagsp = 0;
@@ -425,27 +442,32 @@ static int msm_gpio_get_irq_num(struct gpio_chip *chip, unsigned int gpio, unsig
 
 static void msm_gpio_irq_ack(unsigned int irq)
 {
+    //KDEBUG_FUNC();
 	gpio_clear_detect_status(irq - NR_MSM_IRQS);
 }
 
 static void msm_gpio_irq_mask(unsigned int irq)
 {
+KDEBUG_FUNC();
 	gpio_configure(irq - NR_MSM_IRQS, MSM_GPIOF_DISABLE_INTERRUPT);
 }
 
 static void msm_gpio_irq_unmask(unsigned int irq)
 {
+KDEBUG_FUNC2();
 	gpio_configure(irq - NR_MSM_IRQS, MSM_GPIOF_ENABLE_INTERRUPT);
 }
 
 static int msm_gpio_irq_set_wake(unsigned int irq, unsigned int on)
 {
+KDEBUG_FUNC2();
 	return gpio_configure(irq - NR_MSM_IRQS, on ? MSM_GPIOF_ENABLE_WAKE : MSM_GPIOF_DISABLE_WAKE);
 }
 
 
 static int msm_gpio_irq_set_type(unsigned int irq, unsigned int flow_type)
 {
+KDEBUG_FUNC();
 	return gpio_configure(irq - NR_MSM_IRQS, flow_type);
 }
 
@@ -461,7 +483,12 @@ static void msm_gpio_irq_handler(unsigned int irq, struct irq_desc *desc)
 		while (v) {
 			m = v & -v;
 			j = fls(m) - 1;
-			/* printk("msm_gpio_irq_handler %08x %08x bit %d gpio %d irq %d\n", v, m, j, msm_chip->chip.start + j, NR_MSM_IRQS + msm_chip->chip.start + j); */
+ if(  (msm_chip->chip.start + j) != 114 ){
+     KDEBUG_FUNC();
+			printk("msm_gpio_irq_handler %08x %08x bit %d gpio %d irq %d\n", v, m, j, 
+                   msm_chip->chip.start + j,
+                   NR_MSM_IRQS + msm_chip->chip.start + j);
+ }
 			v &= ~m;
 			generic_handle_irq(NR_MSM_IRQS + msm_chip->chip.start + j);
 		}
@@ -494,7 +521,7 @@ static void msm_gpio_sleep_int(unsigned long arg)
 {
 	int i, j;
 	struct tramp_gpio_smem *smem_gpio;
-
+KDEBUG_FUNC();
 	BUILD_BUG_ON(NR_GPIO_IRQS > NUM_GPIO_SMEM_BANKS * 32);
 
 	smem_gpio = smem_alloc(SMEM_GPIO_INT, sizeof(*smem_gpio)); 
@@ -518,7 +545,7 @@ void msm_gpio_enter_sleep(int from_idle)
 {
 	int i;
 	struct tramp_gpio_smem *smem_gpio;
-
+KDEBUG_FUNC();
 	smem_gpio = smem_alloc(SMEM_GPIO_INT, sizeof(*smem_gpio)); 
 
 	if (smem_gpio) {
@@ -567,7 +594,7 @@ void msm_gpio_exit_sleep(void)
 {
 	int i;
 	struct tramp_gpio_smem *smem_gpio;
-
+KDEBUG_FUNC();
 	smem_gpio = smem_alloc(SMEM_GPIO_INT, sizeof(*smem_gpio)); 
 
 	for (i = 0; i < ARRAY_SIZE(msm_gpio_chips); i++) {
@@ -585,7 +612,7 @@ void msm_gpio_exit_sleep(void)
 static int __init msm_init_gpio(void)
 {
 	int i;
-
+KDEBUG_FUNC();
 	for (i = NR_MSM_IRQS; i < NR_MSM_IRQS + NR_GPIO_IRQS; i++) {
 		set_irq_chip(i, &msm_gpio_irq_chip);
 		set_irq_handler(i, handle_edge_irq);
@@ -608,6 +635,7 @@ postcore_initcall(msm_init_gpio);
 
 int gpio_tlmm_config(unsigned config, unsigned disable)
 {
+KDEBUG_FUNC();
 	return msm_proc_comm(PCOM_RPC_GPIO_TLMM_CONFIG_EX, &config, &disable);
 }
 EXPORT_SYMBOL(gpio_tlmm_config);
@@ -615,6 +643,7 @@ EXPORT_SYMBOL(gpio_tlmm_config);
 int msm_gpios_request_enable(const struct msm_gpio *table, int size)
 {
 	int rc = msm_gpios_request(table, size);
+KDEBUG_FUNC();
 	if (rc)
 		return rc;
 	rc = msm_gpios_enable(table, size);
@@ -626,6 +655,7 @@ EXPORT_SYMBOL(msm_gpios_request_enable);
 
 void msm_gpios_disable_free(const struct msm_gpio *table, int size)
 {
+KDEBUG_FUNC();
 	msm_gpios_disable(table, size);
 	msm_gpios_free(table, size);
 }
@@ -636,6 +666,7 @@ int msm_gpios_request(const struct msm_gpio *table, int size)
 	int rc;
 	int i;
 	const struct msm_gpio *g;
+KDEBUG_FUNC();
 	for (i = 0; i < size; i++) {
 		g = table + i;
 		rc = gpio_request(GPIO_PIN(g->gpio_cfg), g->label);
@@ -656,6 +687,7 @@ void msm_gpios_free(const struct msm_gpio *table, int size)
 {
 	int i;
 	const struct msm_gpio *g;
+KDEBUG_FUNC();
 	for (i = size-1; i >= 0; i--) {
 		g = table + i;
 		gpio_free(GPIO_PIN(g->gpio_cfg));
@@ -668,6 +700,7 @@ int msm_gpios_enable(const struct msm_gpio *table, int size)
 	int rc;
 	int i;
 	const struct msm_gpio *g;
+KDEBUG_FUNC();
 	for (i = 0; i < size; i++) {
 		g = table + i;
 		rc = gpio_tlmm_config(g->gpio_cfg, GPIO_ENABLE);
@@ -694,6 +727,7 @@ void msm_gpios_disable(const struct msm_gpio *table, int size)
 	int rc;
 	int i;
 	const struct msm_gpio *g;
+KDEBUG_FUNC();
 	for (i = size-1; i >= 0; i--) {
 		g = table + i;
 		rc = gpio_tlmm_config(g->gpio_cfg, GPIO_DISABLE);
@@ -716,11 +750,13 @@ static int msm_gpio_debug_result = 1;
 
 static int gpio_enable_set(void *data, u64 val)
 {
+KDEBUG_FUNC();
 	msm_gpio_debug_result = gpio_tlmm_config(val, 0);
 	return 0;
 }
 static int gpio_disable_set(void *data, u64 val)
 {
+KDEBUG_FUNC();
 	msm_gpio_debug_result = gpio_tlmm_config(val, 1);
 	return 0;
 }
@@ -728,6 +764,7 @@ static int gpio_disable_set(void *data, u64 val)
 static int gpio_debug_get(void *data, u64 *val)
 {
 	unsigned int result = msm_gpio_debug_result;
+KDEBUG_FUNC();
 	msm_gpio_debug_result = 1;
 	if (result)
 		*val = 1;
@@ -744,6 +781,7 @@ DEFINE_SIMPLE_ATTRIBUTE(gpio_disable_fops, gpio_debug_get,
 static int __init gpio_debug_init(void)
 {
 	struct dentry *dent;
+KDEBUG_FUNC();
 	dent = debugfs_create_dir("gpio", 0);
 	if (IS_ERR(dent))
 		return 0;

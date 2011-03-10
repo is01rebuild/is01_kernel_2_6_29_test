@@ -68,7 +68,7 @@
 #include <mach/qdsp6/msm8k_ard.h>
 #include <mach/qdsp6/msm8k_cad_qcelp13k_format.h>
 #include <mach/qdsp6/msm8k_cad_devices.h>
-
+#define QCELP_DEBUG 1
 #ifdef QCELP_DEBUG
 #define D(fmt, args...) printk(KERN_INFO "msm8k_qcelp_in: " fmt, ##args)
 #else

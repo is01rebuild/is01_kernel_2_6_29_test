@@ -24,6 +24,12 @@
 #include <asm/uaccess.h>
 #include <sharp/shterm_k.h>
 
+#if 1
+#define KDEBUG_FUNC() printk("shterm: %s()\n", __FUNCTION__)
+#else
+#define KDEBUG_FUNC() do {} while (0)
+#endif
+
 /* M2A */
 #define SHTERM_PROG  0x300000AA
 #define SHTERM_VERS  0x00010001
@@ -247,7 +253,7 @@ static int shterm_rpc_call( struct msm_rpc_server* svr,
             break;
         }
         ret = shterm_k_set_event( &info );
-        //printk( "%s: shterm_k_set_event ret = %d\n", __FUNCTION__, ret );
+        printk( "shterm:%s(): shterm_k_set_event ret = %d\n", __FUNCTION__, ret );
         break;
 
     default:
@@ -425,7 +431,7 @@ static int shterm_a2m_req_val_api_call( shbattlog_data *info )
 static int shterm_dev_open( struct inode *inode, struct file *filp )
 {
     int size;
-
+    KDEBUG_FUNC();
     size = shterm_a2m_rpc_get_efs_size_call();
     if( size < 0 ){
         return size;
@@ -448,7 +454,7 @@ static ssize_t shterm_dev_read( struct file *filp, char __user *buff,
                                 size_t len, loff_t *pos )
 {
     int ret;
-
+    KDEBUG_FUNC();
     if( NULL == efs_data ){
         return -1;
     }
@@ -472,6 +478,7 @@ static ssize_t shterm_dev_read( struct file *filp, char __user *buff,
 
 static int shterm_dev_close( struct inode *inode, struct file *filp )
 {
+    KDEBUG_FUNC();
     if( filp->private_data ){
         kfree( filp->private_data );
         filp->private_data = NULL;
@@ -510,6 +517,8 @@ static ssize_t shterm_cmd_read( struct file *filp, char __user *buff, size_t len
 {
     shbattlog_data info = {0};
 
+    KDEBUG_FUNC();
+
     shterm_a2m_req_val_api_call( &info );
 
     /* copy to user area */
@@ -525,6 +534,8 @@ static ssize_t shterm_cmd_write( struct file *filp, const char __user *buff, siz
     int proc = 0;
     char char_num[12] = {0};
     int ret = -1;
+
+    KDEBUG_FUNC();
 
     if( copy_from_user( char_num, buff, len ) ){
         printk( "copy_from_user %s\n", __FUNCTION__ );

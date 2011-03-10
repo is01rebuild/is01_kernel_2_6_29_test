@@ -71,7 +71,7 @@
 #include <mach/qdsp6/msm8k_cad_amr_format.h>
 #include <mach/qdsp6/msm8k_cad_devices.h>
 
-#if 0
+#if 1
 #define D(fmt, args...) printk(KERN_INFO "msm8k_amr_in: " fmt, ##args)
 #else
 #define D(fmt, args...) do {} while (0)

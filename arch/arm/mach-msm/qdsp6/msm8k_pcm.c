@@ -89,7 +89,7 @@
 #include <mach/qdsp6/msm8k_cad_volume.h>
 #include <mach/qdsp6/msm8k_cad_q6eq_drvi.h>
 
-#if 0
+#if 1
 #define D(fmt, args...) printk(KERN_INFO "msm8k_pcm: " fmt, ##args)
 #else
 #define D(fmt, args...) do {} while (0)
@@ -115,6 +115,7 @@ static int msm8k_pcm_open(struct inode *inode, struct file *f)
 {
 	struct pcm *pcm;
 	struct cad_open_struct_type  cos;
+	D("------------------------------------------------------\n");
 	D("%s\n", __func__);
 
 	pcm = kmalloc(sizeof(struct pcm), GFP_KERNEL);
@@ -237,7 +238,7 @@ static int msm8k_pcm_ioctl(struct inode *inode, struct file *f,
 	u32 percentage;
 	struct cad_event_struct_type eos_event;
 
-	D("%s\n", __func__);
+	D("%s cmd=%x , arg=%lx\n", __func__ , cmd , arg );
 
 	memset(&cad_dev, 0, sizeof(struct cad_device_struct_type));
 	memset(&cad_stream_dev, 0,
@@ -373,10 +374,17 @@ static int msm8k_pcm_ioctl(struct inode *inode, struct file *f,
 		if (copy_to_user((void *)arg, &p->cfg,
 				sizeof(struct msm_audio_config)))
 			return -EFAULT;
+D("get buffer_size=%d, buffer_count=%d, channel_count=%d, sample_rate=%d, type=%d, meta_field=%d, bits=%d, unused[0]=%08x, unused[1]=%08x, unused[2]=%08x\n" ,
+  p->cfg.buffer_size , p->cfg.buffer_count, p->cfg.channel_count, p->cfg.sample_rate, p->cfg.type, p->cfg.meta_field, p->cfg.bits, 
+  p->cfg.unused[0],  p->cfg.unused[1],  p->cfg.unused[2] );
+
 		break;
 	case AUDIO_SET_CONFIG:
 		rc = copy_from_user(&p->cfg, (void *)arg,
 				sizeof(struct msm_audio_config));
+D("set buffer_size=%d, buffer_count=%d, channel_count=%d, sample_rate=%d, type=%d, meta_field=%d, bits=%d, unused[0]=%08x, unused[1]=%08x, unused[2]=%08x\n" , 
+   p->cfg.buffer_size , p->cfg.buffer_count, p->cfg.channel_count, p->cfg.sample_rate, p->cfg.type, p->cfg.meta_field, p->cfg.bits, 
+   p->cfg.unused[0],  p->cfg.unused[1],  p->cfg.unused[2] );
 		break;
 	case AUDIO_SET_VOLUME:
 		rc = copy_from_user(&percentage, (void *)arg, sizeof(u32));

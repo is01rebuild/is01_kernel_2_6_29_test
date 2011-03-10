@@ -73,7 +73,7 @@
 /* this will be replace by include file daldeviceid.h later*/
 #define DALDEVICEID_AUDIO_QDSP          0x02000028
 
-#if 0
+#if 1
 #define D(fmt, args...) printk(KERN_INFO "msm8k_cad: " fmt, ##args)
 #else
 #define D(fmt, args...) do {} while (0)

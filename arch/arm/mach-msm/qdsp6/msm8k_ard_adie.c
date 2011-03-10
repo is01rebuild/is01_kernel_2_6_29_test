@@ -92,7 +92,7 @@ static u32 adie_spkr_stereo_ref1_cnt;
 static u32 adie_spkr_mono_ref2_cnt;
 static u32 adie_spkr_stereo_ref2_cnt;
 
-#if 0
+#if 1
 #define D(fmt, args...) printk(KERN_INFO "adie: " fmt, ##args)
 #else
 #define D(fmt, args...) do {} while (0)

@@ -74,7 +74,7 @@
 #include <mach/qdsp6/msm8k_cad_volume.h>
 #include <mach/qdsp6/msm8k_cad_q6eq_drvi.h>
 
-#if 0
+#if 1
 #define D(fmt, args...) printk(KERN_INFO "msm8k_aac: " fmt, ##args)
 #else
 #define D(fmt, args...) do {} while (0)

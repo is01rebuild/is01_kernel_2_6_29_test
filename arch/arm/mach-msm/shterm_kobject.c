@@ -8,6 +8,14 @@
 #include <linux/semaphore.h>
 #include <sharp/shterm_k.h>
 
+#if 1
+#define KDEBUG_FUNC()   printk(KERN_INFO "shterm_kobject: %s()\n", __FUNCTION__)
+#define D(fmt, args...) printk(KERN_INFO "shterm_kobject: %s(): " fmt, __FUNCTION__  ,##args)
+#else
+#define KDEBUG_FUNC() do {} while (0)
+#define D() do {} while (0)
+#endif
+
 #define EVENT_NAME_MAX 24
 
 typedef struct {
@@ -137,6 +145,7 @@ static shterm_data data = {
 
 int shterm_k_set_info( unsigned long int shterm_info_id, unsigned long int shterm_info_value )
 {
+    KDEBUG_FUNC();
     if( shterm_info_id < 0 || shterm_info_id >= SHTERM_MAX ){
         return SHTERM_FAILURE;
     }
@@ -170,6 +179,8 @@ int shterm_k_set_event( shbattlog_info_t *info )
     char e_avg_vol[EVENT_NAME_MAX];
     int idx = 0;
     int ret;
+
+    KDEBUG_FUNC();
 
     memset( e_num, 0x00, sizeof(e_num) );
     snprintf( e_num, EVENT_NAME_MAX - 1, "EVENT_NUM=%d", info->event_num );
@@ -371,7 +382,7 @@ int shterm_k_set_event( shbattlog_info_t *info )
 int shterm_flip_status_set( int state )
 {
     int ret = SHTERM_FAILURE;
-
+    KDEBUG_FUNC();
     if( down_interruptible(&shterm_flip_sem) ){
         printk( "%s down_interruptible for read failed\n", __FUNCTION__ );
         return -ERESTARTSYS;
@@ -397,12 +408,15 @@ int shterm_flip_status_set( int state )
 
 static void shterm_release( struct kobject *kobj )
 {
+    KDEBUG_FUNC();
     kfree( kobj );
 }
 
 static ssize_t shterm_info_show( struct kobject *kobj, struct attribute *attr, char *buff )
 {
     int n, ret;
+
+    KDEBUG_FUNC();
 
     if( !strncmp(attr->name, "SHTERM_FLIP_COUNT", strlen("SHTERM_FLIP_COUNT")) ){
         if( down_interruptible(&shterm_flip_sem) ){
@@ -449,6 +463,9 @@ static ssize_t shterm_info_store( struct kobject *kobj, struct attribute *attr, 
     int n;
     int val;
 
+//KDEBUG_FUNC();
+ D( "attr->name=%s\n", attr->name );
+
     if( !strncmp(attr->name, "SHTERM_FLIP_STATE", strlen("SHTERM_FLIP_STATE")) ){
         if( down_interruptible(&shterm_flip_sem) ){
             printk( "%s down_interruptible for read failed\n", __FUNCTION__ );
@@ -476,6 +493,7 @@ static ssize_t shterm_info_store( struct kobject *kobj, struct attribute *attr, 
         }
 
         val = (int)simple_strtol( buff, (char **)NULL, 10 );
+D( "val=%d\n", val );
         /* errno check */
         if( down_interruptible(&shterm_sem) ){
             printk( "%s down_interruptible for write failed\n", __FUNCTION__ );
@@ -496,6 +514,7 @@ static ssize_t shterm_info_store( struct kobject *kobj, struct attribute *attr, 
         else {
             shterm_info[n] = val;
         }
+D( "shterm_info[%d]=%d\n", n , val );
 
         up( &shterm_sem );
     }

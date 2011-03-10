@@ -87,7 +87,7 @@
 #include <mach/qdsp6/msm8k_cad_volume.h>
 
 
-#if 0
+#if 1
 #define D(fmt, args...) printk(KERN_INFO "msm8k_audio_dev_ctrl: " fmt, ##args)
 #else
 #define D(fmt, args...) do {} while (0)
@@ -112,7 +112,7 @@ struct msm8k_audio_dev_ctrl g_ctrl;
 int get_cad_hw_device_id(int new_device, struct cad_device_struct_type *cad_dev)
 {
 	int rc=CAD_RES_SUCCESS;
-
+	D("%s() new_device=0x%02x\n", __func__ , new_device );
 	switch (new_device) {
 	case HANDSET_MIC:
 		cad_dev->device = CAD_HW_DEVICE_ID_HANDSET_MIC;
@@ -134,7 +134,8 @@ int get_cad_hw_device_id(int new_device, struct cad_device_struct_type *cad_dev)
 		cad_dev->device = CAD_HW_DEVICE_ID_HEADSET_SPKR_STEREO;
 		cad_dev->reserved = CAD_RX_DEVICE;
 		break;
-	case SPKR_PHONE_MIC:
+	case SPKR_PHONE_MIC://0x06
+                D("[audio_switch_device] case SPKR_PHONE_MIC\n");
 		cad_dev->device = CAD_HW_DEVICE_ID_SPKR_PHONE_MIC;
 		cad_dev->reserved = CAD_TX_DEVICE;
 		break;
@@ -209,7 +210,7 @@ int get_cad_hw_device_id(int new_device, struct cad_device_struct_type *cad_dev)
 		cad_dev->device = CAD_HW_DEVICE_ID_LOOPBACK_SPKR;
 		cad_dev->reserved = CAD_RX_DEVICE;
 		break;
-	case I2S_RX_SPKR:
+	case I2S_RX_SPKR://0x30
 		D("[audio_switch_device] case I2S_RX_SPKR\n");
 		cad_dev->device = CAD_HW_DEVICE_ID_I2S_RX_SPKR;
 		cad_dev->reserved = CAD_RX_DEVICE;
@@ -249,7 +250,7 @@ int get_cad_hw_device_id(int new_device, struct cad_device_struct_type *cad_dev)
 static int msm8k_audio_dev_ctrl_open(struct inode *inode, struct file *f)
 {
 	struct msm8k_audio_dev_ctrl *ctrl = &g_ctrl;
-	D("%s\n", __func__);
+	D("%s()\n", __func__);
 
 	f->private_data = ctrl;
 
@@ -266,7 +267,7 @@ static int msm8k_audio_dev_ctrl_release(struct inode *inode, struct file *f)
 {
 	int rc = CAD_RES_SUCCESS;
 
-	D("%s\n", __func__);
+	D("%s()\n", __func__);
 
 	return rc;
 }
@@ -274,14 +275,14 @@ static int msm8k_audio_dev_ctrl_release(struct inode *inode, struct file *f)
 static ssize_t msm8k_audio_dev_ctrl_read(struct file *f, char __user *buf,
 	size_t cnt, loff_t *pos)
 {
-	D("%s\n", __func__);
+	D("%s()\n", __func__);
 	return -EINVAL;
 }
 
 static ssize_t msm8k_audio_dev_ctrl_write(struct file *f,
 	const char __user *buf, size_t cnt, loff_t *pos)
 {
-	D("%s\n", __func__);
+	D("%s()\n", __func__);
 	return -EINVAL;
 }
 
@@ -291,7 +292,8 @@ int audio_switch_device(int new_device)
 	struct msm8k_audio_dev_ctrl *ctrl = &g_ctrl;
 	struct cad_device_struct_type cad_dev;
 
-	D("%s\n", __func__);
+	//D("%s\n", __func__);
+	D("%s() new_device=0x%02x\n", __func__ , new_device );
 
 	memset(&cad_dev, 0, sizeof(struct cad_device_struct_type));
 
@@ -327,7 +329,7 @@ int audio_set_device_volume_path(struct msm_vol_info *v)
 	struct cad_filter_struct flt;
 	struct msm8k_audio_dev_ctrl *ctrl = &g_ctrl;
 
-	D("%s\n", __func__);
+	D("%s()\n", __func__);
 
 	if ((v->vol < 0) || (v->vol > 100)) {
 		D("invalid volume value\n");
@@ -371,7 +373,7 @@ EXPORT_SYMBOL(audio_set_device_volume_path);
 int audio_set_device_volume(int vol)
 {
 	struct msm_vol_info vi;
-
+	D("%s() vol=%d\n", __func__, vol );
 	vi.vol = vol;
 	vi.path = CAD_RX_DEVICE;
 
@@ -387,7 +389,7 @@ int audio_set_device_mute(struct msm_mute_info *m)
 	struct cad_flt_cfg_dev_mute dev_mute_buf;
 	struct msm8k_audio_dev_ctrl *ctrl = &g_ctrl;
 
-	D("%s\n", __func__);
+	D("%s() mute=%d=%s path=%d\n", __func__, m->mute, m->mute==0?"SND_MUTE_UNMUTED":"SND_MUTE_MUTED", m->path );
 
 	if ((m->path != CAD_RX_DEVICE) && (m->path != CAD_TX_DEVICE)) {
 		pr_err("%s: invalid path\n", __func__);
@@ -432,7 +434,7 @@ int audio_set_device_mute_ex(struct msm_mute_ex_info *m)
  	struct msm8k_audio_dev_ctrl *ctrl = &g_ctrl;
  	struct cad_device_struct_type cad_dev;
  
- 	D("%s\n", __func__);
+ 	D("%s()\n", __func__);
  
  	memset(&flt, 0, sizeof(struct cad_filter_struct));
  	memset(&dev_mute_buf, 0,
@@ -473,7 +475,7 @@ static int msm8k_audio_dev_ctrl_ioctl(struct inode *inode, struct file *f,
 	struct msm_mute_info m;
 	struct msm_vol_info v;
 
-	D("%s\n", __func__);
+	D("%s() cmd=%x arg=%lx\n", __func__ , cmd , arg );
 
 	switch (cmd) {
 	case AUDIO_SWITCH_DEVICE:
@@ -601,7 +603,7 @@ static int __init msm8k_audio_dev_ctrl_init(void)
 	int rc;
 	struct msm8k_audio_dev_ctrl *ctrl = &g_ctrl;
 
-	D("%s\n", __func__);
+	D("%s()\n", __func__);
 
 	rc = misc_register(&msm8k_audio_dev_ctrl_misc);
 	if (rc) {
@@ -628,7 +630,7 @@ static int __init msm8k_audio_dev_ctrl_init(void)
 static void __exit msm8k_audio_dev_ctrl_exit(void)
 {
 	struct msm8k_audio_dev_ctrl *ctrl = &g_ctrl;
-	D("%s\n", __func__);
+	D("%s()\n", __func__);
 
 	cad_close(ctrl->cad_ctrl_handle);
 

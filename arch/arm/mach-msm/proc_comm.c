@@ -25,6 +25,18 @@
 
 #include "proc_comm.h"
 
+#if 1
+#define D(fmt, args...) printk(KERN_INFO "proc_comm: " fmt, ##args)
+#else
+#define D(fmt, args...) do {} while (0)
+#endif
+
+#if 1
+#define KDEBUG_FUNC() printk("proc_comm: %s()\n", __FUNCTION__)
+#else
+#define KDEBUG_FUNC() do {} while (0)
+#endif
+
 #if defined(CONFIG_ARCH_MSM7X30)
 #define MSM_TRIG_A2M_INT(n) (writel(1 << n, MSM_GCC_BASE + 0x8))
 #else
@@ -103,7 +115,7 @@ int msm_proc_comm(unsigned cmd, unsigned *data1, unsigned *data2)
 	unsigned base = (unsigned)MSM_SHARED_RAM_BASE;
 	unsigned long flags;
 	int ret;
-
+    //D("cmd=%x data1=%x data2=%x",cmd , *data1 , *data2 );
 	spin_lock_irqsave(&proc_comm_lock, flags);
 
 again:

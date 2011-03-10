@@ -68,7 +68,7 @@ static struct clk	*ecodec_clk;
 static struct clk	*sdac_clk;
 
 
-#if 0
+#if 1
 #define D(fmt, args...) printk(KERN_INFO "msm8k_cad: " fmt, ##args)
 #else
 #define D(fmt, args...) do {} while (0)
