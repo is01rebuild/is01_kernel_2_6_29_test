@@ -17,4 +17,5 @@
 # Makefile for the linux kernel.
 #
 
-obj-y := ae2drv.o
+#obj-y := ae2drv.o
+obj-m := ae2drv.o

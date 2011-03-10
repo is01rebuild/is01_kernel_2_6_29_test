@@ -3,7 +3,7 @@
 @	compiled by GNU C version 4.0.3 (Ubuntu 4.0.3-1ubuntu5).
 @ GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
 @ options passed:  -nostdinc -Iinclude
-@ -I/home/is01rebuild/is01/is01_froyo/kernel_orig/arch/arm/include
+@ -I/home/is01rebuild/is01/is01_froyo/kernel/arch/arm/include
 @ -Iarch/arm/mach-msm/include -iprefix -D__USES_INITFINI__ -D__KERNEL__
 @ -D__LINUX_ARM_ARCH__=7 -Uarm -DKBUILD_STR(s)=#s
 @ -DKBUILD_BASENAME=KBUILD_STR(bounds) -DKBUILD_MODNAME=KBUILD_STR(bounds)
@@ -474,8 +474,6 @@ foo:
 	.ascii	"ZONE_NORMAL\000"
 .LASF20:
 	.ascii	"PG_arch_1\000"
-.LASF48:
-	.ascii	"/home/is01rebuild/is01/is01_froyo/kernel_orig\000"
 .LASF19:
 	.ascii	"PG_owner_priv_1\000"
 .LASF7:
@@ -530,6 +528,8 @@ foo:
 	.ascii	"PG_slab\000"
 .LASF32:
 	.ascii	"PG_mlocked\000"
+.LASF48:
+	.ascii	"/home/is01rebuild/is01/is01_froyo/kernel\000"
 .LASF12:
 	.ascii	"PG_error\000"
 .LASF23:

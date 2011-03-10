@@ -25,7 +25,7 @@
 #include <linux/i2c/smb380.h>
 #include <linux/hrtimer.h>
 
-#define DEBUG 0
+//#define DEBUG 0
 
 /*+-------------------------------------------------------------------------+*/
 /*|	型宣言																	|*/

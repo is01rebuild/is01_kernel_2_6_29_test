@@ -51,7 +51,7 @@
 #include <linux/earlysuspend.h>
 #endif
 
-#define DEBUG 0
+//#define DEBUG 0
 #define MAX_FAILURE_COUNT 10
 
 #define	DAC_REQUEST		0
